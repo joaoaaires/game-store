@@ -1,0 +1,114 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       Int      @id @default(autoincrement())
+  name     String
+  email    String
+  password String
+  isDev    Boolean  @default(false)
+  createAt DateTime @default(now())
+  updateAt DateTime @updatedAt
+}
+
+model Category {
+  id          Int      @id @default(autoincrement())
+  description String
+  createAt    DateTime @default(now())
+  updateAt    DateTime @default(now()) @updatedAt
+
+  games GamesOnCategories[]
+}
+
+model OperationalSystems {
+  id          Int      @id @default(autoincrement())
+  description String
+  createAt    DateTime @default(now())
+  updateAt    DateTime @default(now()) @updatedAt
+
+  games GamesOnSystems[]
+}
+
+model Game {
+  id               Int      @id @default(autoincrement())
+  title            String
+  shortDescription String   @db.VarChar(500)
+  description      String   @db.VarChar(1000)
+  actor            String
+  avatarUrl        String
+  headerUrl        String
+  uurest           String
+  createAt         DateTime @default(now())
+  updateAt         DateTime @updatedAt
+
+  categories GamesOnCategories[]
+  systems    GamesOnSystems[]
+  screens    Screenshots[]
+  builds     Build[]
+  prices     Price[]
+}
+
+model GamesOnCategories {
+  gameId     Int
+  categoryId Int
+  createAt   DateTime @default(now())
+  updateAt   DateTime @updatedAt
+
+  game     Game     @relation(fields: [gameId], references: [id])
+  category Category @relation(fields: [categoryId], references: [id])
+
+  @@id([gameId, categoryId])
+}
+
+model GamesOnSystems {
+  gameId               Int
+  operationalSystemsId Int
+  createAt             DateTime @default(now())
+  updateAt             DateTime @updatedAt
+
+  Game               Game               @relation(fields: [gameId], references: [id])
+  OperationalSystems OperationalSystems @relation(fields: [operationalSystemsId], references: [id])
+
+  @@id([gameId, operationalSystemsId])
+}
+
+model Screenshots {
+  id     Int @id @default(autoincrement())
+  gameId Int
+
+  screenUrl String
+  createAt  DateTime @default(now())
+  updateAt  DateTime @updatedAt
+
+  Game Game @relation(fields: [gameId], references: [id])
+}
+
+model Build {
+  id     Int @id @default(autoincrement())
+  gameId Int
+
+  buildNumber Int
+  description String
+  createAt    DateTime @default(now())
+  updateAt    DateTime @default(now()) @updatedAt
+
+  Game Game? @relation(fields: [gameId], references: [id])
+}
+
+model Price {
+  id     Int  @id @default(autoincrement())
+  gameId Int?
+
+  price Decimal
+
+  Game Game? @relation(fields: [gameId], references: [id])
+}
