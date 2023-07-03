@@ -17,7 +17,7 @@ export function Header({
   const user = getUser()
 
   return (
-    <div className="h-[56px] bg-white shadow-md">
+    <div className="z-50 h-[56px] bg-white shadow">
       {!full ? (
         <div className="flex items-center justify-center">
           <div className="py-4">Your Company</div>

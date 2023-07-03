@@ -2,10 +2,11 @@ import multer from 'multer'
 import { Router } from 'express'
 import { randomUUID } from 'node:crypto'
 
-import { create, update, upload } from '../controller/game'
+import { create, readAll, update, upload } from '../controller/game'
 
 export default (router: Router) => {
   router.post('/games', create)
+  router.get('/games', readAll)
   router.put('/games/:id', update)
 
   const storage = multer.diskStorage({

@@ -80,6 +80,46 @@ export async function create(req: Request, res: Response) {
   })
 }
 
+export async function readAll(req: Request, res: Response) {
+  const games = await prisma.game.findMany({
+    include: {
+      categories: {
+        include: {
+          category: true,
+        },
+      },
+      systems: {
+        include: {
+          OperationalSystems: true,
+        },
+      },
+    },
+  })
+
+  return generateObjectResponse(res, {
+    status: 200,
+    data: games.map((game) => {
+      return {
+        id: game.id,
+        avatarUrl: game.avatarUrl,
+        title: game.title,
+        shortDescription: game.shortDescription,
+        actor: game.actor,
+        categories: game.categories.map((category) => {
+          const categoryChild = category.category
+          const { description } = categoryChild
+          return { description }
+        }),
+        systems: game.systems.map((system) => {
+          const systemChild = system.OperationalSystems
+          const { description } = systemChild
+          return { description }
+        }),
+      }
+    }),
+  })
+}
+
 export async function update(req: Request, res: Response) {
   const resultParams = generateParamsSchema(req)
 

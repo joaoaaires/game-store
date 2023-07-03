@@ -1,4 +1,5 @@
 import { FilterSideBar } from '@/components/home/FilterSideBar'
+import { ListGame } from '@/components/home/ListGame'
 import { Header } from '@/components/shared/Header'
 
 export default function Home() {
@@ -7,7 +8,9 @@ export default function Home() {
       <Header />
       <div className="flex flex-1">
         <FilterSideBar />
-        <div className="flex-auto bg-yellow-400">RIGHT</div>
+        <div className="flex-auto bg-white">
+          <ListGame />
+        </div>
       </div>
     </div>
   )
