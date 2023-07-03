@@ -10,9 +10,11 @@ export default function Access() {
   }
 
   return (
-    <>
+    <div className="flex h-screen flex-col">
       <Header full={false} />
-      <AccessBody />
-    </>
+      <div className="flex-1">
+        <AccessBody />
+      </div>
+    </div>
   )
 }

@@ -10,23 +10,17 @@ export default function AccessBody() {
   const [error, setError] = useState<string | null>(null)
 
   return (
-    <>
-      <div className="isolate  px-6 py-24 sm:py-32 lg:px-8">
-        <div className="mx-auto max-w-lg">
-          {error ? (
-            <ToastAlert title={error} close={() => setError(null)} />
+    <div className="mt-20 flex h-full justify-center">
+      <div className="basis-1/3">
+        {error ? <ToastAlert title={error} close={() => setError(null)} /> : ''}
+        <div className="rounded-lg border border-gray-200 bg-white  p-4 shadow-md sm:p-6 lg:p-8">
+          {isSignIn ? (
+            <SignIn setSignIn={setSignIn} setError={setError} />
           ) : (
-            ''
+            <SignUp setSignIn={setSignIn} setError={setError} />
           )}
-          <div className="rounded-lg border border-gray-200 bg-white  p-4 shadow-md sm:p-6 lg:p-8">
-            {isSignIn ? (
-              <SignIn setSignIn={setSignIn} setError={setError} />
-            ) : (
-              <SignUp setSignIn={setSignIn} setError={setError} />
-            )}
-          </div>
         </div>
       </div>
-    </>
+    </div>
   )
 }

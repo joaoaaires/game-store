@@ -40,8 +40,8 @@ export async function signUp(req: Request, res: Response) {
     },
   })
 
-  const { id, createAt, updateAt } = user
-  const token = await generateToken({ id, name, email })
+  const { id, isDev, createAt, updateAt } = user
+  const token = await generateToken({ id, name, email, isDev })
   const userResponse = { id, email, token, createAt, updateAt }
 
   return generateObjectResponse(res, {
@@ -82,8 +82,8 @@ export async function signIn(req: Request, res: Response) {
     })
   }
 
-  const { id, name, createAt, updateAt } = user
-  const token = await generateToken({ id, name, email })
+  const { id, name, isDev, createAt, updateAt } = user
+  const token = await generateToken({ id, name, email, isDev })
   const userResponse = { id, email, token, createAt, updateAt }
 
   return generateObjectResponse(res, {

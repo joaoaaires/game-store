@@ -4,9 +4,13 @@ import { Fragment } from 'react'
 import { Menu, Transition } from '@headlessui/react'
 import { ChevronDown, Library, Gamepad2, LogOut } from 'lucide-react'
 
-export function HeaderUserMenu() {
+interface MenuRightProps {
+  isDev: boolean
+}
+
+export function MenuRight({ isDev }: MenuRightProps) {
   return (
-    <Menu as="div" className="relative inline-block text-left">
+    <Menu as="div" className="relative">
       <div>
         <Menu.Button className="rounded p-2 transition-colors hover:bg-gray-200">
           <ChevronDown />
@@ -38,20 +42,22 @@ export function HeaderUserMenu() {
                 </div>
               </a>
             </Menu.Item>
-            <Menu.Item>
-              <a
-                href="/games/create"
-                className="group flex flex-row items-center rounded px-2 py-2 hover:bg-gray-100"
-              >
-                <div className="mr-4 flex h-11 w-11 items-center justify-center rounded bg-gray-100 group-hover:bg-white">
-                  <Gamepad2 className="group-hover:text-purple-500" />
-                </div>
-                <div className="flex flex-col gap-y-1">
-                  <p>Create new game</p>
-                  <p className="text-xs">Form game</p>
-                </div>
-              </a>
-            </Menu.Item>
+            {isDev && (
+              <Menu.Item>
+                <a
+                  href="/games/create"
+                  className="group flex flex-row items-center rounded px-2 py-2 hover:bg-gray-100"
+                >
+                  <div className="mr-4 flex h-11 w-11 items-center justify-center rounded bg-gray-100 group-hover:bg-white">
+                    <Gamepad2 className="group-hover:text-purple-500" />
+                  </div>
+                  <div className="flex flex-col gap-y-1">
+                    <p>Create new game</p>
+                    <p className="text-xs">Form game</p>
+                  </div>
+                </a>
+              </Menu.Item>
+            )}
             <Menu.Item>
               <a
                 href="/api/logout"

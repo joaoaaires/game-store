@@ -5,6 +5,7 @@ interface User {
   sub: string
   name: string
   email: string
+  isDev: boolean
 }
 
 export function getUser(): User | null {
