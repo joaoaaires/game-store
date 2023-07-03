@@ -5,6 +5,7 @@ import { Request, Response } from 'express'
 import { prisma } from '../lib/prisma'
 import { generateObjectResponse } from '../lib/object-response'
 import { UserSignUp, UserSignIn } from '../model'
+import { generateToken } from '../lib/jwt'
 
 export async function signUp(req: Request, res: Response) {
   const result = generateBodySchemaSignUp(req)
@@ -40,7 +41,8 @@ export async function signUp(req: Request, res: Response) {
   })
 
   const { id, createAt, updateAt } = user
-  const userResponse = { id, email, createAt, updateAt }
+  const token = await generateToken({ id, name, email })
+  const userResponse = { id, email, token, createAt, updateAt }
 
   return generateObjectResponse(res, {
     status: 200,
@@ -80,11 +82,9 @@ export async function signIn(req: Request, res: Response) {
     })
   }
 
-  const { id, createAt, updateAt } = user
-  const userResponse = { id, email, createAt, updateAt }
-
-  // GERAR TOKEN
-  res.set('Authorization-Response', `Bearer fasdfasdfasdfas`)
+  const { id, name, createAt, updateAt } = user
+  const token = await generateToken({ id, name, email })
+  const userResponse = { id, email, token, createAt, updateAt }
 
   return generateObjectResponse(res, {
     status: 200,

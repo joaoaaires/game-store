@@ -2,6 +2,8 @@ import { api } from '@/lib/api'
 import { AxiosError } from 'axios'
 import { useRouter } from 'next/navigation'
 import { FormEvent } from 'react'
+import User from './core/user'
+import ObjectResponse from '../shared/core/object-response'
 
 interface SignInProps {
   setSignIn: (option: boolean) => void
@@ -21,18 +23,19 @@ export function SignIn({ setSignIn, setError }: SignInProps) {
     const formData = new FormData(event.currentTarget)
 
     try {
-      const response = await api.post('/signin', {
+      const result = await api.post<ObjectResponse<User>>('/signin', {
         email: formData.get('email'),
         password: formData.get('password'),
       })
-      console.log(response)
-      router.push('/')
+
+      const response = result.data
+      const user = response.data
+      if (user) {
+        document.cookie = `token=${user.token}; Path=/; max-age=2592000`
+        router.push('/')
+      }
     } catch (e) {
-      const { response } = e as AxiosError<{
-        status: number
-        data: object
-        message: string
-      }>
+      const { response } = e as AxiosError<ObjectResponse<null>>
       setError(`${response?.data?.message}`)
     }
   }
@@ -47,7 +50,7 @@ export function SignIn({ setSignIn, setError }: SignInProps) {
         <input
           name="email"
           id="email"
-          className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5  sm:text-sm"
+          className="w-full rounded border border-gray-300 bg-gray-50 p-2.5 leading-relaxed focus:ring-0"
         />
       </div>
       <div className="mt-6">
@@ -56,14 +59,14 @@ export function SignIn({ setSignIn, setError }: SignInProps) {
           type="password"
           name="password"
           id="password"
-          className="block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 sm:text-sm"
+          className="w-full rounded border border-gray-300 bg-gray-50 p-2.5 leading-relaxed focus:ring-0 "
         />
       </div>
 
       <div className="mt-6 text-sm text-gray-400">
         <button
           type="submit"
-          className="mr-2 inline-block self-end rounded-lg bg-purple-500 px-5 py-3  font-medium leading-none  text-white transition-colors hover:bg-purple-600"
+          className="mr-2 inline-block self-end rounded bg-purple-500 px-5 py-3  font-medium leading-none  text-white transition-colors hover:bg-purple-600"
         >
           Log in
         </button>

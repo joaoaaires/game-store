@@ -1,9 +1,10 @@
+import { Header } from '@/components/shared/Header'
+
 export default function Home() {
-  const isAuth = false
-
-  if (!isAuth) {
-    return <div className=" text-xl font-bold ">Hello Word!</div>
-  }
-
-  return <div className=" text-xl font-bold ">Hello Word Auth!</div>
+  return (
+    <>
+      <Header />
+      <div className="text-xl font-bold">Hello Word!</div>
+    </>
+  )
 }

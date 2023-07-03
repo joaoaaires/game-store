@@ -2,6 +2,8 @@ import { api } from '@/lib/api'
 import { AxiosError } from 'axios'
 import { useRouter } from 'next/navigation'
 import { FormEvent } from 'react'
+import User from './core/user'
+import ObjectResponse from '../shared/core/object-response'
 
 interface SignUpProps {
   setSignIn: (option: boolean) => void
@@ -34,13 +36,17 @@ export function SignUp({ setSignIn, setError }: SignUpProps) {
     }
 
     try {
-      const response = await api.post('/signup', {
+      const result = await api.post<ObjectResponse<User>>('/signup', {
         name: formData.get('name'),
         email: formData.get('email'),
         password: formData.get('password'),
       })
-      console.log(response)
-      router.push('/')
+      const response = result.data
+      const user = response.data
+      if (user) {
+        document.cookie = `token=${user.token}; Path=/; max-age=2592000`
+        router.push('/')
+      }
     } catch (e) {
       const { response } = e as AxiosError<{
         status: number

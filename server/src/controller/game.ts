@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { generateErrorMessage } from 'zod-error'
-import { Request, Response } from 'express'
+import { Request, Response, Express } from 'express'
 
 import { prisma } from '../lib/prisma'
 import { generateObjectResponse } from '../lib/object-response'
@@ -183,6 +183,38 @@ export async function update(req: Request, res: Response) {
   return generateObjectResponse(res, {
     status: 200,
     data: game,
+  })
+}
+
+export async function upload(req: Request, res: Response) {
+  const { header, avatar, screen, build } = req.files as {
+    header: Express.Multer.File[] | null | undefined
+    avatar: Express.Multer.File[] | null | undefined
+    screen: Express.Multer.File[] | null | undefined
+    build: Express.Multer.File[] | null | undefined
+  }
+
+  let files: Express.Multer.File[] = []
+  if (header) files = files.concat(header)
+  if (avatar) files = files.concat(avatar)
+  if (screen) files = files.concat(screen)
+  if (build) files = files.concat(build)
+
+  return generateObjectResponse(res, {
+    status: 200,
+    data: files.map((file) => {
+      if (!file) return null
+      const fullUrl = req.protocol
+        .concat('://')
+        .concat(req.hostname)
+        .concat(':')
+        .concat('3333')
+      const fileUrl = new URL(
+        `/${file.destination}/${file.filename}`,
+        fullUrl,
+      ).toString()
+      return { type: file.fieldname, url: fileUrl }
+    }),
   })
 }
 
