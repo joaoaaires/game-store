@@ -75,8 +75,8 @@ model GamesOnSystems {
   createAt             DateTime @default(now())
   updateAt             DateTime @updatedAt
 
-  Game               Game               @relation(fields: [gameId], references: [id])
-  OperationalSystems OperationalSystems @relation(fields: [operationalSystemsId], references: [id])
+  game               Game               @relation(fields: [gameId], references: [id])
+  operationalSystems OperationalSystems @relation(fields: [operationalSystemsId], references: [id])
 
   @@id([gameId, operationalSystemsId])
 }
@@ -89,7 +89,7 @@ model Screenshots {
   createAt  DateTime @default(now())
   updateAt  DateTime @updatedAt
 
-  Game Game @relation(fields: [gameId], references: [id])
+  game Game @relation(fields: [gameId], references: [id])
 }
 
 model Build {
@@ -101,7 +101,7 @@ model Build {
   createAt    DateTime @default(now())
   updateAt    DateTime @default(now()) @updatedAt
 
-  Game Game? @relation(fields: [gameId], references: [id])
+  game Game? @relation(fields: [gameId], references: [id])
 }
 
 model Price {
@@ -110,5 +110,5 @@ model Price {
 
   price Decimal
 
-  Game Game? @relation(fields: [gameId], references: [id])
+  game Game? @relation(fields: [gameId], references: [id])
 }

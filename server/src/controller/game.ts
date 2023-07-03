@@ -41,7 +41,7 @@ export async function create(req: Request, res: Response) {
       systems: {
         create: newGame.systems.map((os) => {
           return {
-            OperationalSystems: {
+            operationalSystems: {
               connect: {
                 id: os.id,
               },
@@ -90,7 +90,7 @@ export async function readAll(req: Request, res: Response) {
       },
       systems: {
         include: {
-          OperationalSystems: true,
+          operationalSystems: true,
         },
       },
     },
@@ -111,12 +111,19 @@ export async function readAll(req: Request, res: Response) {
           return { description }
         }),
         systems: game.systems.map((system) => {
-          const systemChild = system.OperationalSystems
+          const systemChild = system.operationalSystems
           const { description } = systemChild
           return { description }
         }),
       }
     }),
+  })
+}
+
+export async function readByUurest(req: Request, res: Response) {
+  return generateObjectResponse(res, {
+    status: 200,
+    data: {},
   })
 }
 
@@ -184,7 +191,7 @@ export async function update(req: Request, res: Response) {
         deleteMany: {},
         create: newGame.systems.map((os) => {
           return {
-            OperationalSystems: {
+            operationalSystems: {
               connect: {
                 id: os.id,
               },

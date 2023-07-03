@@ -7,6 +7,7 @@ import { create, readAll, update, upload } from '../controller/game'
 export default (router: Router) => {
   router.post('/games', create)
   router.get('/games', readAll)
+  router.get('/games/:uurest', readAll)
   router.put('/games/:id', update)
 
   const storage = multer.diskStorage({
