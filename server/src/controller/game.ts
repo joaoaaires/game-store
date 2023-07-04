@@ -120,10 +120,43 @@ export async function readAll(req: Request, res: Response) {
   })
 }
 
-export async function readByUurest(req: Request, res: Response) {
+export async function read(req: Request, res: Response) {
+  const schemaParams = z.object({
+    game: z
+      .string({
+        required_error: 'params-is-required',
+      })
+      .nonempty({
+        message: 'params-is-empty',
+      }),
+  })
+
+  const result = schemaParams.safeParse(req.params)
+
+  if (!result.success) {
+    return generateObjectResponse(res, {
+      status: 400,
+      message: generateErrorMessage(result.error.issues),
+    })
+  }
+
+  const { game } = result.data
+
+  const id = Number(game)
+  const gameDb = await prisma.game.findFirst({
+    where: id ? { id } : { uurest: game },
+  })
+
+  if (!gameDb) {
+    return generateObjectResponse(res, {
+      status: 400,
+      message: 'game-not-found',
+    })
+  }
+
   return generateObjectResponse(res, {
     status: 200,
-    data: {},
+    data: gameDb,
   })
 }
 

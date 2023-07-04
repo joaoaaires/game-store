@@ -2,13 +2,14 @@ import multer from 'multer'
 import { Router } from 'express'
 import { randomUUID } from 'node:crypto'
 
-import { create, readAll, update, upload } from '../controller/game'
+import { create, read, readAll, update, upload } from '../controller/game'
+import { validationToken } from '../lib/jwt'
 
 export default (router: Router) => {
-  router.post('/games', create)
+  router.post('/games', validationToken, create)
   router.get('/games', readAll)
-  router.get('/games/:uurest', readAll)
-  router.put('/games/:id', update)
+  router.get('/games/:game', read)
+  router.put('/games/:id', validationToken, update)
 
   const storage = multer.diskStorage({
     destination: function (req, file, cb) {
@@ -31,6 +32,7 @@ export default (router: Router) => {
   })
   router.post(
     '/games/upload',
+    validationToken,
     uploadMulter.fields([
       { name: 'header' },
       { name: 'avatar' },

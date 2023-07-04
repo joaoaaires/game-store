@@ -1,5 +1,5 @@
-import { SignJWT } from 'jose'
-import { Request, Response } from 'express'
+import { SignJWT, jwtVerify } from 'jose'
+import { Request, Response, NextFunction } from 'express'
 import { generateObjectResponse } from './object-response'
 
 const secret = new TextEncoder().encode(process.env.JWT_SECRET)
@@ -22,16 +22,36 @@ export async function generateToken(params: {
     .sign(secret)
 }
 
-export async function validationToken(req: Request, res: Response, next) {
+export async function validationToken(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
   const authorization = req.headers.authorization
 
   if (!authorization) {
     return generateObjectResponse(res, {
-      status: 200,
+      status: 401,
+      message: 'Not Authenticated',
+    })
+  }
+
+  try {
+    const { payload, protectedHeader } = await jwtVerify(authorization, secret)
+
+    console.log(protectedHeader)
+    console.log(payload)
+
+    return next()
+  } catch (e) {
+    console.log(e)
+    return generateObjectResponse(res, {
+      status: 401,
       message: 'Not Authorization',
     })
   }
 
+  /*
   jwt.verify(req.headers.authorization, 'shhhhh', function (err, usuario) {
     if (err) throw err
 
@@ -44,4 +64,5 @@ export async function validationToken(req: Request, res: Response, next) {
       return res.status(401).send('Not Authorization')
     }
   })
+  */
 }
