@@ -145,6 +145,21 @@ export async function read(req: Request, res: Response) {
   const id = Number(game)
   const gameDb = await prisma.game.findFirst({
     where: id ? { id } : { uurest: game },
+    include: {
+      categories: {
+        include: {
+          category: true,
+        },
+      },
+      systems: {
+        include: {
+          operationalSystems: true,
+        },
+      },
+      screens: true,
+      prices: true,
+      builds: true,
+    },
   })
 
   if (!gameDb) {
@@ -154,9 +169,42 @@ export async function read(req: Request, res: Response) {
     })
   }
 
+  const gameFormatter = {
+    id: gameDb.id,
+    title: gameDb.title,
+    shortDescription: gameDb.shortDescription,
+    description: gameDb.description,
+    actor: gameDb.actor,
+    avatarUrl: gameDb.avatarUrl,
+    headerUrl: gameDb.headerUrl,
+    uurest: gameDb.uurest,
+    categories: gameDb.categories.map((category) => {
+      const categoryChild = category.category
+      const { id, description } = categoryChild
+      return { id, description }
+    }),
+    systems: gameDb.systems.map((system) => {
+      const systemChild = system.operationalSystems
+      const { id, description } = systemChild
+      return { id, description }
+    }),
+    screens: gameDb.screens.map((screen) => {
+      const { id, screenUrl } = screen
+      return { id, screenUrl }
+    }),
+    prices: gameDb.prices.map((priceValue) => {
+      const { id, price } = priceValue
+      return { id, price: Number(price) }
+    }),
+    builds: gameDb.builds.map((build) => {
+      const { id, buildNumber, description } = build
+      return { id, buildNumber, description }
+    }),
+  }
+
   return generateObjectResponse(res, {
     status: 200,
-    data: gameDb,
+    data: gameFormatter,
   })
 }
 
