@@ -59,13 +59,13 @@ export function Header({
             ) : (
               <>
                 <Link
-                  href="/access"
+                  href="/accounts"
                   className="rounded bg-purple-500 px-3 py-2 text-white transition-colors hover:bg-purple-700"
                 >
                   Log in
                 </Link>
                 <Link
-                  href="/access"
+                  href="/accounts"
                   className="rounded  px-3 py-2  transition-colors hover:bg-gray-200"
                 >
                   Registrer

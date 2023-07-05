@@ -4,7 +4,6 @@ import { Request, Response } from 'express'
 
 import { prisma } from '../lib/prisma'
 import { generateObjectResponse } from '../lib/object-response'
-import { UserSignUp, UserSignIn } from '../model'
 import { generateToken } from '../lib/jwt'
 
 export async function signUp(req: Request, res: Response) {
@@ -92,9 +91,18 @@ export async function signIn(req: Request, res: Response) {
   })
 }
 
-function generateBodySchemaSignUp(
-  req: Request,
-): z.SafeParseReturnType<UserSignUp, UserSignUp> {
+function generateBodySchemaSignUp(req: Request): z.SafeParseReturnType<
+  {
+    name: string
+    email: string
+    password: string
+  },
+  {
+    name: string
+    email: string
+    password: string
+  }
+> {
   return z
     .object({
       name: z
@@ -122,9 +130,16 @@ function generateBodySchemaSignUp(
     .safeParse(req.body)
 }
 
-function generateBodySchemaSignIn(
-  req: Request,
-): z.SafeParseReturnType<UserSignIn, UserSignIn> {
+function generateBodySchemaSignIn(req: Request): z.SafeParseReturnType<
+  {
+    email: string
+    password: string
+  },
+  {
+    email: string
+    password: string
+  }
+> {
   return z
     .object({
       email: z

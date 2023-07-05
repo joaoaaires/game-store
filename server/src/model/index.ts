@@ -1,14 +1,3 @@
-export interface UserSignUp {
-  name: string
-  email: string
-  password: string
-}
-
-export interface UserSignIn {
-  email: string
-  password: string
-}
-
 export interface Category {
   id: number
   description?: string | null
