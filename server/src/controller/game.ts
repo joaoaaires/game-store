@@ -105,6 +105,7 @@ export async function readAll(req: Request, res: Response) {
         title: game.title,
         shortDescription: game.shortDescription,
         actor: game.actor,
+        uurest: game.uurest,
         categories: game.categories.map((category) => {
           const categoryChild = category.category
           const { description } = categoryChild
@@ -178,6 +179,8 @@ export async function read(req: Request, res: Response) {
     avatarUrl: gameDb.avatarUrl,
     headerUrl: gameDb.headerUrl,
     uurest: gameDb.uurest,
+    createAt: gameDb.createAt,
+    updateAt: gameDb.updateAt,
     categories: gameDb.categories.map((category) => {
       const categoryChild = category.category
       const { id, description } = categoryChild

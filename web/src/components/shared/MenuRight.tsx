@@ -30,7 +30,7 @@ export function MenuRight({ isDev }: MenuRightProps) {
           <div className="flex flex-col gap-y-2 p-4">
             <Menu.Item>
               <a
-                href="#"
+                href="/games/library"
                 className="group flex flex-row items-center rounded px-2 py-2 hover:bg-gray-100"
               >
                 <div className="mr-4 flex h-11 w-11 items-center justify-center rounded bg-gray-100 group-hover:bg-white">

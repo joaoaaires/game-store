@@ -47,7 +47,7 @@ export function FilterSideBar() {
   }
 
   return (
-    <div className="flex basis-1/6 flex-col gap-y-4 bg-gray-200 px-4 py-4">
+    <div className="flex basis-1/5 flex-col gap-y-4 bg-gray-200 px-4 py-4">
       <div className="px-3 font-semibold uppercase">Filter Results</div>
       <button
         onClick={handlerShowPrice}

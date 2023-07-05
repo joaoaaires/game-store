@@ -1,4 +1,4 @@
 export default interface Category {
   id: number
-  description?: string | null
+  description: string | null
 }

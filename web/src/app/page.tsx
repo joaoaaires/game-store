@@ -8,7 +8,8 @@ export default function Home() {
       <Header />
       <div className="flex flex-1">
         <FilterSideBar />
-        <div className="flex-auto bg-white">
+
+        <div className="flex-1 bg-white">
           <ListGame />
         </div>
       </div>
