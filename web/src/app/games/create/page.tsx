@@ -1,7 +1,7 @@
 import { Header } from '@/components/shared/Header'
 import GameBody from './page-body'
-import { getUser } from '@/lib/auth'
 import { redirect } from 'next/navigation'
+import { getUser } from '@/util/auth'
 
 export default function Game() {
   const user = getUser()

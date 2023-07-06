@@ -1,7 +1,6 @@
 import { User } from 'lucide-react'
 import Link from 'next/link'
-import { getUser } from '@/lib/auth'
-import { MenuRight } from './MenuRight'
+import { getUser } from '@/util/auth'
 
 interface HeaderProps {
   full?: boolean
@@ -54,7 +53,6 @@ export function Header({
               <>
                 <User className="my-auto" />
                 <p className="my-auto">{user.name}</p>
-                <MenuRight isDev={user.isDev} />
               </>
             ) : (
               <>

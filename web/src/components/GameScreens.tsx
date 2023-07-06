@@ -1,11 +1,11 @@
 import Image from 'next/image'
-import Game from '../core/game'
+import Game from './game/core/game'
 
-interface ScreensProps {
+interface GameScreensProps {
   game: Game
 }
 
-export function Screens({ game }: ScreensProps) {
+export function GameScreens({ game }: GameScreensProps) {
   return (
     <div className="flex flex-col gap-y-3">
       {game.screens &&
