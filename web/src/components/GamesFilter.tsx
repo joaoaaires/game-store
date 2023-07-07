@@ -117,7 +117,7 @@ export function GamesFilter() {
   }, [fetchItems])
 
   return (
-    <div className="flex w-full  flex-col gap-y-4 px-4 py-4 ">
+    <div className="flex h-full w-full flex-col gap-y-4 px-4 py-4 ">
       <div className="px-3 font-semibold uppercase">Filtrar resultados</div>
       {items.map((item, index) => {
         return (
@@ -138,11 +138,14 @@ export function GamesFilter() {
                         <button
                           onClick={() => item.setFilter(subItem.action)}
                           key={index}
-                          className={`flex gap-2 ${
+                          className={`flex items-start justify-start gap-2 ${
                             item.isActive(subItem.action) ? 'text-teal-600' : ''
                           }`}
                         >
-                          <subItem.icon /> {subItem.title}
+                          <subItem.icon />{' '}
+                          <div className="text-left line-clamp-1">
+                            {subItem.title}
+                          </div>
                         </button>
                       )
                     })}

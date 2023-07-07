@@ -34,7 +34,7 @@ export function NavBar() {
           {/* Logo */}
           <Image src={Logo} alt="" className="h-12 w-12" />
           {/* Buttom Home */}
-          <Link href="/" className="relative mx-5 hidden py-4 md:flex ">
+          <Link href="/" className="relative mx-6 hidden py-4 md:flex ">
             Lista de Jogos
             {activeBrowseGames ? (
               <div className="absolute right-0 top-[52px] h-1 w-full bg-teal-600" />

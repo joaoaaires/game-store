@@ -10,6 +10,9 @@ export interface FilterGames {
   price?: string
   days?: string
   category?: string
+  system?: string
+  page?: number
+  perPage?: number
 }
 
 export const FilterGamesContext = createContext<{

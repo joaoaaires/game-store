@@ -33,7 +33,7 @@ export function NavBarDropdown({
         leaveFrom="transform opacity-100 scale-100"
         leaveTo="transform opacity-0 scale-95"
       >
-        <Menu.Items className="absolute right-0 z-10 mt-6 w-60 rounded bg-black-800 text-sm shadow-md ring-0">
+        <Menu.Items className="absolute right-0 z-10 mt-3 w-60 rounded bg-black-600 text-sm shadow-md ring-0">
           <div className="flex flex-col gap-y-2 p-4">
             {items.map((item, index) => {
               if (!item) return <></>

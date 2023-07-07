@@ -3,21 +3,23 @@
 import Image from 'next/image'
 import { ChangeEvent, ReactNode, useState } from 'react'
 
-export function MediaPicker({
-  name,
-  children,
-}: {
+interface MediaPickerProps {
+  htmlFor: string
   children: ReactNode
-  name: string
-}) {
+  multiple?: boolean
+}
+
+export function MediaPicker({
+  htmlFor,
+  children,
+  multiple = false,
+}: MediaPickerProps) {
   const [preview, setPreview] = useState<string | null>(null)
 
-  function onFileSelected(event: ChangeEvent<HTMLInputElement>) {
+  function handleSelectedFile(event: ChangeEvent<HTMLInputElement>) {
     const { files } = event.target
 
-    if (!files || !files.length) {
-      return
-    }
+    if (!files || !files.length) return
 
     const previewUrl = URL.createObjectURL(files[0])
 
@@ -25,7 +27,10 @@ export function MediaPicker({
   }
 
   return (
-    <>
+    <label
+      htmlFor={htmlFor}
+      className="flex h-[180px] cursor-pointer items-center justify-center rounded border border-dashed text-lg transition-colors hover:border-black-500 hover:text-black-500"
+    >
       {preview ? (
         <Image
           width={500}
@@ -39,13 +44,14 @@ export function MediaPicker({
       )}
 
       <input
-        onChange={onFileSelected}
-        name={name}
-        id={name}
+        onChange={handleSelectedFile}
+        name={htmlFor}
+        id={htmlFor}
         type="file"
         accept="image/*"
         className="invisible h-0 w-0"
+        multiple={multiple}
       />
-    </>
+    </label>
   )
 }

@@ -8,6 +8,7 @@ import Image from 'next/image'
 import { GameDetailInfo } from './GameDetailInfo'
 import { GameScreens } from './GameScreens'
 import { GameBuy } from './GameBuy'
+import { GameRecommendation } from './GameRecommendation'
 
 export function GameDetail({ uurest }: { uurest: string }) {
   const [game, setGame] = useState<Game | null | undefined>(null)
@@ -38,7 +39,7 @@ export function GameDetail({ uurest }: { uurest: string }) {
 
   return (
     <div className="flex h-auto bg-black-500 lg:px-[12rem] xl:px-[22rem] 2xl:px-[28rem]">
-      <div className="bg-black-800 text-white">
+      <div className="w-full bg-black-800 text-white">
         <div className="px-3 py-6 text-2xl font-bold text-teal-600">
           {game.title}
         </div>
@@ -61,8 +62,9 @@ export function GameDetail({ uurest }: { uurest: string }) {
         </div>
         <div className="p-3 pt-6 text-justify">{game.description}</div>
         <div className="flex gap-x-3 px-3">
-          <div className="flex-1">
+          <div className="flex flex-1 flex-col gap-y-10">
             <GameBuy game={game} />
+            <GameRecommendation game={game} />
           </div>
           <div className="basis-60">
             <GameScreens game={game} />

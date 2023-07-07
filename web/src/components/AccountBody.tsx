@@ -1,14 +1,14 @@
 'use client'
 
 import { useState } from 'react'
-import { SignIn } from './SignIn'
-import { SignUp } from './SignUp'
+import { AccountSignIn } from './AccountSignIn'
+import { AccountSignUp } from './AccountSignUp'
 import { useRouter } from 'next/navigation'
 import { api } from '@/lib/api'
 import { AxiosError } from 'axios'
-import ObjectResponse from '../shared/core/object-response'
+import ObjectResponse from './shared/core/object-response'
 
-export default function PainelBody() {
+export default function AccountBody() {
   const router = useRouter()
   const [isSignIn, setSignIn] = useState<boolean>(true)
   const [msgError, setMsgError] = useState<string | null>(null)
@@ -39,13 +39,13 @@ export default function PainelBody() {
   return (
     <div className="w-full px-8 pb-8">
       {isSignIn ? (
-        <SignIn
+        <AccountSignIn
           msgError={msgError}
           setSignIn={handleSetSignIn}
           handleSignInOrSignUp={handleSignInOrSignUp}
         />
       ) : (
-        <SignUp
+        <AccountSignUp
           msgError={msgError}
           setMsgError={setMsgError}
           setSignIn={handleSetSignIn}

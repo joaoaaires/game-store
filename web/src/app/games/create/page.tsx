@@ -1,7 +1,6 @@
-import { Header } from '@/components/shared/Header'
-import GameBody from './page-body'
 import { redirect } from 'next/navigation'
 import { getUser } from '@/util/auth'
+import { GameCreate } from '@/components/GameCreate'
 
 export default function Game() {
   const user = getUser()
@@ -9,10 +8,5 @@ export default function Game() {
     return redirect('/')
   }
 
-  return (
-    <>
-      <Header activeBrowseGames={false} activeSearch={false} />
-      <GameBody />
-    </>
-  )
+  return <GameCreate />
 }

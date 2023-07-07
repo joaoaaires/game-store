@@ -20,6 +20,7 @@ export function GamesList() {
 
   const fetchGames = useCallback(async () => {
     let params = debouncedSearch ? { query: debouncedSearch } : {}
+    filter.perPage = 500
     params = { ...params, ...filter }
     const result = await api.get('/games', { params })
     const response: ObjectResponse<GamesItemListProps[]> = result.data

@@ -1,10 +1,12 @@
 import { z } from 'zod'
 import { generateErrorMessage } from 'zod-error'
 import { Request, Response, Express } from 'express'
+import moment from 'moment'
 
 import { prisma } from '../lib/prisma'
 import { generateObjectResponse } from '../lib/object-response'
 import { Game } from '../model'
+import { Prisma } from '@prisma/client'
 
 export async function create(req: Request, res: Response) {
   const result = generateBodySchema(req)
@@ -81,7 +83,67 @@ export async function create(req: Request, res: Response) {
 }
 
 export async function readAll(req: Request, res: Response) {
+  console.log(req.query)
+  const schemaParams = z.object({
+    query: z.string().optional(),
+    price: z.string().optional(),
+    days: z.string().optional(),
+    category: z.string().optional(),
+    page: z.string().optional(),
+    perPage: z.string().optional(),
+  })
+
+  const result = schemaParams.safeParse(req.query)
+
+  if (!result.success) {
+    return generateObjectResponse(res, {
+      status: 400,
+      message: generateErrorMessage(result.error.issues),
+    })
+  }
+
+  const { query, price, days, category, page, perPage } = result.data
+
+  let where = {}
+  if (query) where = { ...where, ...{ title: { contains: query } } }
+  if (category) {
+    where = {
+      ...where,
+      ...{ categories: { some: { categoryId: Number(category) } } },
+    }
+  }
+  if (price) {
+    where = {
+      ...where,
+      ...{
+        prices: {
+          some: {
+            price: {
+              lte: Number(price),
+            },
+          },
+        },
+      },
+    }
+  }
+  if (days) {
+    where = {
+      ...where,
+      ...{
+        createAt: {
+          gte: moment().subtract(Number(days), 'days').toISOString(),
+          lte: moment().add(1, 'days').toISOString(),
+        },
+      },
+    }
+  }
+  const pageNumber = Number(page ?? '0')
+  const perPageNumber = Number(perPage ?? '10')
+
   const games = await prisma.game.findMany({
+    skip: pageNumber * perPageNumber,
+    take: perPageNumber,
+    where,
     include: {
       categories: {
         include: {
@@ -93,6 +155,10 @@ export async function readAll(req: Request, res: Response) {
           operationalSystems: true,
         },
       },
+      prices: true,
+    },
+    orderBy: {
+      createAt: Prisma.SortOrder.desc,
     },
   })
 
@@ -116,6 +182,8 @@ export async function readAll(req: Request, res: Response) {
           const { description } = systemChild
           return { description }
         }),
+        price:
+          game.prices && game.prices.length ? Number(game.prices[0].price) : 0,
       }
     }),
   })

@@ -1,17 +1,17 @@
 import { FormEvent } from 'react'
 import Alert from './Alert'
 
-interface SignInProps {
+interface AccountSignInProps {
   msgError: string | null
   setSignIn: (option: boolean) => void
   handleSignInOrSignUp: (url: string, data: any) => void
 }
 
-export function SignIn({
+export function AccountSignIn({
   msgError,
   setSignIn,
   handleSignInOrSignUp,
-}: SignInProps) {
+}: AccountSignInProps) {
   async function handleSignIn(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     const formData = new FormData(event.currentTarget)
