@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { generateErrorMessage } from 'zod-error'
+import { ErrorMessageOptions, generateErrorMessage } from 'zod-error'
 import { Request, Response, Express } from 'express'
 import moment from 'moment'
 
@@ -8,13 +8,20 @@ import { generateObjectResponse } from '../lib/object-response'
 import { Game } from '../model'
 import { Prisma } from '@prisma/client'
 
+const options: ErrorMessageOptions = {
+  delimiter: {
+    error: '#',
+  },
+  transform: ({ messageComponent }) => `${messageComponent}`,
+}
+
 export async function create(req: Request, res: Response) {
   const result = generateBodySchema(req)
 
   if (!result.success) {
     return generateObjectResponse(res, {
       status: 400,
-      message: generateErrorMessage(result.error.issues),
+      message: generateErrorMessage(result.error.issues, options),
     })
   }
 
@@ -79,6 +86,24 @@ export async function create(req: Request, res: Response) {
   return generateObjectResponse(res, {
     status: 200,
     data: gameDb,
+  })
+}
+
+export async function createValidation(req: Request, res: Response) {
+  const result = generateBodySchema(req)
+
+  if (!result.success) {
+    return generateObjectResponse(res, {
+      status: 400,
+      message: generateErrorMessage(result.error.issues, options),
+    })
+  }
+
+  const newGame = result.data
+
+  return generateObjectResponse(res, {
+    status: 200,
+    data: newGame,
   })
 }
 
@@ -422,87 +447,87 @@ function generateBodySchema(req: Request): z.SafeParseReturnType<Game, Game> {
     .object({
       title: z
         .string({
-          required_error: 'title-is-required',
+          required_error: 'Título é obrigatório',
         })
         .nonempty({
-          message: 'title-is-empty',
+          message: 'Título é obrigatório',
         }),
       shortDescription: z
         .string({
-          required_error: 'short-description-is-required',
+          required_error: 'Descrição curta é obrigatória',
         })
         .nonempty({
-          message: 'short-description-is-empty',
+          message: 'Descrição curta é obrigatória',
         }),
       description: z
         .string({
-          required_error: 'description-is-required',
+          required_error: 'Descrição é obrigatória',
         })
         .nonempty({
-          message: 'description-is-empty',
+          message: 'Descrição é obrigatória',
         }),
       actor: z
         .string({
-          required_error: 'actor-is-required',
+          required_error: 'Ator é obrigatório',
         })
         .nonempty({
-          message: 'actor-is-empty',
+          message: 'Ator é obrigatório',
         }),
       avatarUrl: z
         .string({
-          required_error: 'avatar-url-is-required',
+          required_error: 'Avatar é obrigatório',
         })
         .nonempty({
-          message: 'avatar-url-is-empty',
+          message: 'Avatar é obrigatório',
         }),
       headerUrl: z
         .string({
-          required_error: 'header-url-is-required',
+          required_error: 'Capa é obrigatório',
         })
         .nonempty({
-          message: 'header-url-is-empty',
+          message: 'Capa é obrigatório',
         }),
       uurest: z
         .string({
-          required_error: 'uurest-is-required',
+          required_error: 'Url é obrigatória',
         })
         .nonempty({
-          message: 'uurest-is-empty',
+          message: 'Url é obrigatória',
         }),
       categories: z
         .array(z.object({ id: z.number() }), {
-          required_error: 'categories-is-required',
+          required_error: 'Categorias são obrigatórias',
         })
         .nonempty({
-          message: 'categories-is-empty',
+          message: 'Categorias são obrigatórias',
         }),
       systems: z
         .array(z.object({ id: z.number() }), {
-          required_error: 'systems-is-required',
+          required_error: 'Sistemas operacionais são obrigatórias',
         })
         .nonempty({
-          message: 'systems-is-empty',
+          message: 'Sistemas operacionais são obrigatórias',
         }),
       screens: z
         .array(z.object({ screenUrl: z.string() }), {
-          required_error: 'screens-is-required',
+          required_error: 'Screenshots são obrigatórias',
         })
         .nonempty({
-          message: 'screens-is-empty',
+          message: 'Screenshots são obrigatórias',
         }),
       builds: z
         .array(z.object({ buildNumber: z.number(), description: z.string() }), {
-          required_error: 'builds-is-required',
+          required_error: 'Build é obrigatória',
         })
         .nonempty({
-          message: 'builds-is-empty',
+          message: 'Build  é obrigatória',
         }),
       prices: z
         .array(z.object({ price: z.number() }), {
-          required_error: 'prices-is-required',
+          required_error: 'Preço é obrigatória',
         })
         .nonempty({
-          message: 'prices-is-empty',
+          message: 'Preço é obrigatória',
         }),
     })
     .safeParse(req.body)

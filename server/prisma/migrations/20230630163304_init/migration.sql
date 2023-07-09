@@ -99,6 +99,20 @@ CREATE TABLE `Price` (
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
+-- AddRow
+INSERT INTO `category` (`id`, `description`, `createAt`, `updateAt`) VALUES
+	(1, 'Terror', '2023-06-30 13:35:01.527', '2023-06-30 13:35:01.527'),
+	(2, 'Aventura', '2023-06-30 13:35:08.833', '2023-06-30 13:35:08.833'),
+	(3, 'Ação', '2023-06-30 13:35:14.165', '2023-06-30 13:35:14.165'),
+	(4, 'RPG', '2023-06-30 13:35:20.146', '2023-06-30 13:35:20.146');
+
+-- AddRow
+INSERT INTO `operationalsystems` (`id`, `description`, `createAt`, `updateAt`) VALUES
+	(1, 'Windows', '2023-06-30 13:35:28.427', '2023-06-30 13:35:28.427'),
+	(2, 'macOS', '2023-06-30 13:35:33.759', '2023-06-30 13:35:33.759'),
+	(3, 'Linux', '2023-06-30 13:35:41.542', '2023-06-30 13:35:41.542'),
+	(4, 'chromeOS', '2023-06-30 13:35:48.349', '2023-06-30 13:35:48.349');
+
 -- AddForeignKey
 ALTER TABLE `GamesOnCategories` ADD CONSTRAINT `GamesOnCategories_gameId_fkey` FOREIGN KEY (`gameId`) REFERENCES `Game`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 

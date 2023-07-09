@@ -36,7 +36,7 @@ export function NavBarDropdown({
         <Menu.Items className="absolute right-0 z-10 mt-3 w-60 rounded bg-black-600 text-sm shadow-md ring-0">
           <div className="flex flex-col gap-y-2 p-4">
             {items.map((item, index) => {
-              if (!item) return <></>
+              if (!item) return ''
               return (
                 <Menu.Item key={index}>
                   <a

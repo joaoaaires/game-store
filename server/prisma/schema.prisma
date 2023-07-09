@@ -41,8 +41,8 @@ model OperationalSystems {
 model Game {
   id               Int      @id @default(autoincrement())
   title            String
-  shortDescription String   @db.VarChar(500)
-  description      String   @db.VarChar(1000)
+  shortDescription String   @db.Text
+  description      String   @db.Text
   actor            String
   avatarUrl        String
   headerUrl        String

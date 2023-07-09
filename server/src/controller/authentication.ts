@@ -1,10 +1,17 @@
 import { z } from 'zod'
-import { generateErrorMessage } from 'zod-error'
+import { ErrorMessageOptions, generateErrorMessage } from 'zod-error'
 import { Request, Response } from 'express'
 
 import { prisma } from '../lib/prisma'
 import { generateObjectResponse } from '../lib/object-response'
 import { generateToken } from '../lib/jwt'
+
+const options: ErrorMessageOptions = {
+  delimiter: {
+    error: '#',
+  },
+  transform: ({ messageComponent }) => `${messageComponent}`,
+}
 
 export async function signUp(req: Request, res: Response) {
   const result = generateBodySchemaSignUp(req)
@@ -12,7 +19,7 @@ export async function signUp(req: Request, res: Response) {
   if (!result.success) {
     return generateObjectResponse(res, {
       status: 400,
-      message: generateErrorMessage(result.error.issues),
+      message: generateErrorMessage(result.error.issues, options),
     })
   }
 
@@ -27,7 +34,7 @@ export async function signUp(req: Request, res: Response) {
   if (user) {
     return generateObjectResponse(res, {
       status: 400,
-      message: 'user-exist',
+      message: 'Usuário já existe',
     })
   }
 
@@ -55,7 +62,7 @@ export async function signIn(req: Request, res: Response) {
   if (!result.success) {
     return generateObjectResponse(res, {
       status: 400,
-      message: generateErrorMessage(result.error.issues),
+      message: generateErrorMessage(result.error.issues, options),
     })
   }
 
@@ -70,14 +77,16 @@ export async function signIn(req: Request, res: Response) {
   if (!user) {
     return generateObjectResponse(res, {
       status: 400,
-      message: 'fields-invalid',
+      message:
+        'Não encontramos uma conta com esse endereço de email ou senha não coresponde a mesma cadastrada.',
     })
   }
 
   if (user.password !== password) {
     return generateObjectResponse(res, {
       status: 400,
-      message: 'fields-invalid',
+      message:
+        'Não encontramos uma conta com esse endereço de email ou senha não coresponde a mesma cadastrada.',
     })
   }
 
@@ -107,24 +116,24 @@ function generateBodySchemaSignUp(req: Request): z.SafeParseReturnType<
     .object({
       name: z
         .string({
-          required_error: 'name-is-required',
+          required_error: 'Nome é obrigatório',
         })
         .nonempty({
-          message: 'name-is-empty',
+          message: 'Nome é obrigatório',
         }),
       email: z
         .string({
-          required_error: 'email-is-required',
+          required_error: 'E-mail é obrigatório',
         })
         .nonempty({
-          message: 'email-is-empty',
+          message: 'E-mail é obrigatório',
         }),
       password: z
         .string({
-          required_error: 'password-is-required',
+          required_error: 'Senha é obrigatória',
         })
         .nonempty({
-          message: 'password-is-empty',
+          message: 'Senha é obrigatória',
         }),
     })
     .safeParse(req.body)
@@ -144,17 +153,17 @@ function generateBodySchemaSignIn(req: Request): z.SafeParseReturnType<
     .object({
       email: z
         .string({
-          required_error: 'email-is-required',
+          required_error: 'E-mail é obrigatório',
         })
         .nonempty({
-          message: 'email-is-empty',
+          message: 'E-mail é obrigatório',
         }),
       password: z
         .string({
-          required_error: 'password-is-required',
+          required_error: 'Senha é obrigatória',
         })
         .nonempty({
-          message: 'password-is-empty',
+          message: 'Senha é obrigatória',
         }),
     })
     .safeParse(req.body)

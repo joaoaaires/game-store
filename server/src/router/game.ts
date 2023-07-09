@@ -2,11 +2,19 @@ import multer from 'multer'
 import { Router } from 'express'
 import { randomUUID } from 'node:crypto'
 
-import { create, read, readAll, update, upload } from '../controller/game'
+import {
+  create,
+  createValidation,
+  read,
+  readAll,
+  update,
+  upload,
+} from '../controller/game'
 import { validationToken } from '../lib/jwt'
 
 export default (router: Router) => {
   router.post('/games', validationToken, create)
+  router.post('/games/validation', validationToken, createValidation)
   router.get('/games', readAll)
   router.get('/games/:game', read)
   router.put('/games/:id', validationToken, update)

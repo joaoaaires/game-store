@@ -21,14 +21,14 @@ export function AccountSignUp({
     const isAcceptTerm = formData.get('isAcceptTerm')
 
     if (!isAcceptTerm) {
-      return setMsgError('term-not-accept')
+      return setMsgError('Termo não foi aceito.')
     }
 
     const password = formData.get('password')
     const repeatPassword = formData.get('repeatPassword')
 
     if (!(password === repeatPassword)) {
-      return setMsgError('password-not-equals')
+      return setMsgError('Senhas não são iguais.')
     }
 
     handleSignInOrSignUp('/signup', {

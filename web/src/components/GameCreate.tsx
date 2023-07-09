@@ -19,6 +19,9 @@ import OperationalSystems from './game/core/operational-systems'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import Cookie from 'js-cookie'
+import { AxiosError } from 'axios'
+import Alert from './Alert'
+import { formatterMessageErro } from '@/util/formatter'
 
 export function GameCreate() {
   const router = useRouter()
@@ -31,6 +34,7 @@ export function GameCreate() {
     [],
   )
   const [screens, setScreens] = useState<FileList | null>()
+  const [msgError, setMsgError] = useState<string | null>(null)
 
   const fetchCategories = useCallback(async () => {
     const result = await api.get('/categories')
@@ -87,94 +91,186 @@ export function GameCreate() {
     const token = Cookie.get('token')
     const formData = new FormData(event.currentTarget)
 
-    const uploadFormData = new FormData()
-    appendFormDataUpload('header', formData.get('headerUrl'), uploadFormData)
-    appendFormDataUpload('avatar', formData.get('avatarUrl'), uploadFormData)
-    screens &&
-      Array.from(screens).forEach((screen) => {
-        appendFormDataUpload('screen', screen, uploadFormData)
-      })
-
-    const uploadResult = await api.post('/games/upload', uploadFormData, {
-      headers: {
-        Authorization: `${token}`,
-      },
-    })
-
-    const response: ObjectResponse<{ type: string; url: string }[]> =
-      uploadResult.data
-
-    const { data } = response
-
+    // formData to jsonBody
     let body = {
       title: formData.get('title'),
+      uurest: formData.get('uurest'),
       shortDescription: formData.get('shortDescription'),
       description: formData.get('description'),
       actor: formData.get('actor'),
-      uurest: formData.get('uurest'),
-      categories: selectedCategories.map((value) => {
-        return { id: value.id }
-      }),
-      systems: selectedSystems.map((value) => {
-        return { id: value.id }
-      }),
-      builds: [
-        {
-          buildNumber: Number(formData.get('buildNumber')),
-          description: formData.get('buildDescription'),
-        },
-      ],
-      prices: [
-        {
-          price: Number(
-            `${formData.get('price')}`
-              .replaceAll('R$', '')
-              .trim()
-              .replaceAll('.', '')
-              .replaceAll(',', '.'),
-          ),
-        },
-      ],
     }
 
-    if (data) {
-      const header = data.filter((value) => value.type === 'header')
-      if (header.length) {
-        body = {
-          ...body,
-          ...{ headerUrl: header[0].url },
-        }
-      }
-      const avatar = data.filter((value) => value.type === 'avatar')
-      if (avatar.length) {
-        body = {
-          ...body,
-          ...{ avatarUrl: avatar[0].url },
-        }
-      }
-      const screen = data.filter((value) => value.type === 'screen')
-      if (screen.length) {
-        body = {
-          ...body,
-          ...{
-            screens: screen.map((value) => {
-              return { screenUrl: value.url }
-            }),
-          },
-        }
-      }
-    }
-
-    console.log(body)
-
-    const result = await api.post('/games', body, {
-      headers: {
-        Authorization: `${token}`,
+    // selectedCategories to categoriesJsonBody
+    body = {
+      ...body,
+      ...{
+        categories: selectedCategories.map((value) => {
+          return { id: value.id }
+        }),
       },
-    })
-    console.log(result)
+    }
 
-    router.push('/')
+    // selectedSystems to systemsJsonBody
+    body = {
+      ...body,
+      ...{
+        systems: selectedSystems.map((value) => {
+          return { id: value.id }
+        }),
+      },
+    }
+
+    // headerUrl to jsonBody
+    const headerUrl = formData.get('headerUrl') as File | null
+    if (headerUrl) {
+      body = {
+        ...body,
+        ...{
+          headerUrl: headerUrl.name,
+        },
+      }
+    }
+
+    // avatarUrl to jsonBody
+    const avatarUrl = formData.get('avatarUrl') as File | null
+    if (avatarUrl) {
+      body = {
+        ...body,
+        ...{
+          avatarUrl: avatarUrl.name,
+        },
+      }
+    }
+
+    // build to buildsJsonBody
+    const buildNumber = Number(formData.get('buildNumber'))
+    const buildDescription = formData.get('buildDescription')
+    if (buildNumber && buildDescription) {
+      body = {
+        ...body,
+        ...{
+          builds: [
+            {
+              buildNumber,
+              description: buildDescription,
+            },
+          ],
+        },
+      }
+    }
+
+    // screens to screensJsonBody
+    if (screens) {
+      body = {
+        ...body,
+        ...{
+          screens: Array.from(screens).map((value) => {
+            return { screenUrl: value.name }
+          }),
+        },
+      }
+    }
+
+    // prices to pricesJsonBody
+    body = {
+      ...body,
+      ...{
+        prices: [
+          {
+            price: Number(
+              `${formData.get('price')}`
+                .replaceAll('R$', '')
+                .trim()
+                .replaceAll('.', '')
+                .replaceAll(',', '.'),
+            ),
+          },
+        ],
+      },
+    }
+
+    // validation infos before send create router
+    try {
+      const validationResult = await api.post('/games/validation', body, {
+        headers: {
+          Authorization: `${token}`,
+        },
+      })
+      console.log(`OK: ${validationResult !== null}`)
+      setMsgError(null)
+    } catch (e) {
+      const { response } = e as AxiosError<ObjectResponse<null>>
+      return setMsgError(formatterMessageErro(response?.data?.message))
+    }
+
+    const uploadFormData = new FormData()
+    appendFormDataUpload('header', formData.get('headerUrl'), uploadFormData)
+    appendFormDataUpload('avatar', formData.get('avatarUrl'), uploadFormData)
+    if (screens) {
+      Array.from(screens).forEach((screen) => {
+        appendFormDataUpload('screen', screen, uploadFormData)
+      })
+    }
+
+    // update files
+    try {
+      const uploadResult = await api.post('/games/upload', uploadFormData, {
+        headers: {
+          Authorization: `${token}`,
+        },
+      })
+      const response: ObjectResponse<{ type: string; url: string }[]> =
+        uploadResult.data
+
+      const { data } = response
+
+      setMsgError(null)
+
+      if (data) {
+        const header = data.filter((value) => value.type === 'header')
+        if (header.length) {
+          body = {
+            ...body,
+            ...{ headerUrl: header[0].url },
+          }
+        }
+        const avatar = data.filter((value) => value.type === 'avatar')
+        if (avatar.length) {
+          body = {
+            ...body,
+            ...{ avatarUrl: avatar[0].url },
+          }
+        }
+        const screen = data.filter((value) => value.type === 'screen')
+        if (screen.length) {
+          body = {
+            ...body,
+            ...{
+              screens: screen.map((value) => {
+                return { screenUrl: value.url }
+              }),
+            },
+          }
+        }
+      }
+    } catch (e) {
+      const { response } = e as AxiosError<ObjectResponse<null>>
+      return setMsgError(formatterMessageErro(response?.data?.message))
+    }
+
+    // createa game
+    try {
+      const result = await api.post('/games', body, {
+        headers: {
+          Authorization: `${token}`,
+        },
+      })
+      console.log(`OK: ${result !== null}`)
+      router.push(`/games/${formData.get('uurest')}`)
+    } catch (e) {
+      const { response } = e as AxiosError<ObjectResponse<null>>
+      return setMsgError(formatterMessageErro(response?.data?.message))
+    }
   }
 
   function appendFormDataUpload(
@@ -191,6 +287,7 @@ export function GameCreate() {
     <div className="flex h-auto bg-black-500 lg:px-[12rem] xl:px-[22rem] 2xl:px-[28rem]">
       <div className="flex w-full bg-black-800 p-4 text-white">
         <form className="w-full" onSubmit={handleCreateGame}>
+          {msgError && <Alert text={msgError} />}
           <div className="mb-4 text-2xl font-bold text-teal-600">
             Criar novo jogo
           </div>

@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation'
 import { api } from '@/lib/api'
 import { AxiosError } from 'axios'
 import ObjectResponse from './shared/core/object-response'
+import { formatterMessageErro } from '@/util/formatter'
 
 export default function AccountBody() {
   const router = useRouter()
@@ -27,7 +28,7 @@ export default function AccountBody() {
       }
     } catch (e) {
       const { response } = e as AxiosError<ObjectResponse<null>>
-      setMsgError(`${response?.data?.message}`)
+      setMsgError(formatterMessageErro(response?.data?.message))
     }
   }
 
