@@ -5,6 +5,9 @@ import { DownloadCloud } from 'lucide-react'
 import { Fragment, useState, useRef } from 'react'
 import Game from './game/core/game'
 import Image from 'next/image'
+import { api } from '@/lib/api'
+import Cookie from 'js-cookie'
+import { useRouter } from 'next/navigation'
 
 interface GameBuyProps {
   game: Game
@@ -14,6 +17,27 @@ export function GameBuy({ game }: GameBuyProps) {
   const [show, setShow] = useState<boolean>(false)
   const cancelButtonRef = useRef(null)
   const prices = game.prices
+  const router = useRouter()
+
+  async function handleBuyGame() {
+    try {
+      const token = Cookie.get('token')
+      const url = `/games/${game.uurest}/buy`
+      const result = await api.put(
+        url,
+        {},
+        {
+          headers: {
+            Authorization: `${token}`,
+          },
+        },
+      )
+      console.log(`OK: ${result !== null}`)
+      router.push('/games/library')
+    } catch (e) {
+      console.log(e)
+    }
+  }
 
   if (!prices.length) {
     return (
@@ -127,7 +151,7 @@ export function GameBuy({ game }: GameBuyProps) {
                           <button
                             type="button"
                             className="inline-flex w-full justify-center rounded-md bg-teal-600 px-3 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-teal-700 sm:ml-3 sm:w-auto"
-                            onClick={() => setShow(false)}
+                            onClick={handleBuyGame}
                           >
                             Comprar
                           </button>

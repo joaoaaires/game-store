@@ -3,6 +3,7 @@ import { Router } from 'express'
 import { randomUUID } from 'node:crypto'
 
 import {
+  buy,
   create,
   createValidation,
   read,
@@ -17,6 +18,7 @@ export default (router: Router) => {
   router.post('/games/validation', validationToken, createValidation)
   router.get('/games', validationTokenWithOut, readAll)
   router.get('/games/:game', validationTokenWithOut, read)
+  router.put('/games/:game/buy', validationToken, buy)
   router.put('/games/:id', validationToken, update)
 
   const storage = multer.diskStorage({

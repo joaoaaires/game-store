@@ -139,7 +139,14 @@ export async function readAll(req: Request, res: Response) {
     where = {
       ...where,
       ...{
-        userId,
+        OR: [
+          { userId },
+          {
+            UserOnGames: {
+              some: { userId },
+            },
+          },
+        ],
       },
     }
   }
@@ -266,6 +273,7 @@ export async function read(req: Request, res: Response) {
       screens: true,
       prices: true,
       builds: true,
+      UserOnGames: true,
     },
   })
 
@@ -283,9 +291,13 @@ export async function read(req: Request, res: Response) {
     const { sub } = JSON.parse(usuario)
     showPrice = true
     paidGame = gameDb.userId === parseInt(sub)
+    if (!paidGame) {
+      const resultFitler = gameDb.UserOnGames.find(
+        (value) => value.userId === parseInt(sub),
+      )
+      paidGame = !!resultFitler
+    }
   }
-
-  console.log(showPrice)
 
   const gameFormatter = {
     id: gameDb.id,
@@ -466,6 +478,60 @@ export async function upload(req: Request, res: Response) {
       ).toString()
       return { type: file.fieldname, url: fileUrl }
     }),
+  })
+}
+
+export async function buy(req: Request, res: Response) {
+  const schemaParams = z.object({
+    game: z
+      .string({
+        required_error: 'params-is-required',
+      })
+      .nonempty({
+        message: 'params-is-empty',
+      }),
+  })
+
+  const result = schemaParams.safeParse(req.params)
+
+  if (!result.success) {
+    return generateObjectResponse(res, {
+      status: 400,
+      message: generateErrorResponse(result.error.issues),
+    })
+  }
+
+  const { game } = result.data
+
+  const id = Number(game)
+  const gameDb = await prisma.game.findFirst({
+    where: id ? { id } : { uurest: game },
+  })
+
+  if (!gameDb) {
+    return generateObjectResponse(res, {
+      status: 400,
+      message: 'game-not-found',
+    })
+  }
+
+  const { sub } = JSON.parse(req.params.usuario)
+
+  console.log({
+    userId: parseInt(sub),
+    gameId: gameDb.id,
+  })
+
+  await prisma.userOnGames.create({
+    data: {
+      userId: parseInt(sub),
+      gameId: gameDb.id,
+    },
+  })
+
+  return generateObjectResponse(res, {
+    status: 200,
+    data: 'Jogo comprado com sucesso!',
   })
 }
 
