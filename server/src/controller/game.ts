@@ -68,6 +68,7 @@ export async function create(req: Request, res: Response) {
           return {
             buildNumber: build.buildNumber,
             description: build.description,
+            buildUrl: build.buildUrl,
           }
         }),
       },
@@ -332,8 +333,8 @@ export async function read(req: Request, res: Response) {
         })
       : [],
     builds: gameDb.builds.map((build) => {
-      const { id, buildNumber, description } = build
-      return { id, buildNumber, description }
+      const { id, buildNumber, description, buildUrl } = build
+      return { id, buildNumber, description, buildUrl }
     }),
   }
 
@@ -429,6 +430,7 @@ export async function update(req: Request, res: Response) {
           return {
             buildNumber: build.buildNumber,
             description: build.description,
+            buildUrl: build.buildUrl,
           }
         }),
       },
@@ -463,7 +465,7 @@ export async function upload(req: Request, res: Response) {
   if (screen) files = files.concat(screen)
   if (build) files = files.concat(build)
 
-  return generateObjectResponse(res, {
+  const response = {
     status: 200,
     data: files.map((file) => {
       if (!file) return null
@@ -478,7 +480,11 @@ export async function upload(req: Request, res: Response) {
       ).toString()
       return { type: file.fieldname, url: fileUrl }
     }),
-  })
+  }
+
+  console.log(response)
+
+  return generateObjectResponse(res, response)
 }
 
 export async function buy(req: Request, res: Response) {
@@ -609,11 +615,18 @@ function generateBodySchema(req: Request): z.SafeParseReturnType<Game, Game> {
           message: 'Screenshots são obrigatórias',
         }),
       builds: z
-        .array(z.object({ buildNumber: z.number(), description: z.string() }), {
-          required_error: 'Build é obrigatória',
-        })
+        .array(
+          z.object({
+            buildNumber: z.number(),
+            description: z.string(),
+            buildUrl: z.string(),
+          }),
+          {
+            required_error: 'Build é obrigatória',
+          },
+        )
         .nonempty({
-          message: 'Build  é obrigatória',
+          message: 'Build é obrigatória',
         }),
       prices: z
         .array(z.object({ price: z.number() }), {

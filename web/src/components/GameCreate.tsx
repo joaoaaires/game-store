@@ -33,6 +33,7 @@ export function GameCreate() {
   const [selectedSystems, setSelectedSystems] = useState<OperationalSystems[]>(
     [],
   )
+  const [builds, setBuilds] = useState<FileList | null>()
   const [screens, setScreens] = useState<FileList | null>()
   const [msgError, setMsgError] = useState<string | null>(null)
 
@@ -73,6 +74,16 @@ export function GameCreate() {
 
   function handleSelectedSystems(systems: OperationalSystems[]) {
     setSelectedSystems(systems)
+  }
+
+  function handleSelectedBuilds(event: ChangeEvent<HTMLInputElement>) {
+    const { files } = event.target
+
+    if (!files || !files.length) {
+      return
+    }
+
+    setBuilds(files)
   }
 
   function handleSelectedScreens(event: ChangeEvent<HTMLInputElement>) {
@@ -145,16 +156,17 @@ export function GameCreate() {
     // build to buildsJsonBody
     const buildNumber = Number(formData.get('buildNumber'))
     const buildDescription = formData.get('buildDescription')
-    if (buildNumber && buildDescription) {
+    if (buildNumber && buildDescription && builds) {
       body = {
         ...body,
         ...{
-          builds: [
-            {
+          builds: Array.from(builds).map((build) => {
+            return {
               buildNumber,
               description: buildDescription,
-            },
-          ],
+              buildUrl: build.name,
+            }
+          }),
         },
       }
     }
@@ -211,6 +223,11 @@ export function GameCreate() {
         appendFormDataUpload('screen', screen, uploadFormData)
       })
     }
+    if (builds) {
+      Array.from(builds).forEach((build) => {
+        appendFormDataUpload('build', build, uploadFormData)
+      })
+    }
 
     // update files
     try {
@@ -248,6 +265,21 @@ export function GameCreate() {
             ...{
               screens: screen.map((value) => {
                 return { screenUrl: value.url }
+              }),
+            },
+          }
+        }
+        const build = data.filter((value) => value.type === 'build')
+        if (build.length) {
+          body = {
+            ...body,
+            ...{
+              builds: build.map((value) => {
+                return {
+                  buildNumber,
+                  description: buildDescription,
+                  buildUrl: value.url,
+                }
               }),
             },
           }
@@ -458,7 +490,7 @@ export function GameCreate() {
               </div>
               <div>
                 <div className="mb-4 font-bold">Arquivos para downloads</div>
-                <div className="flex gap-x-2 gap-y-2">
+                <div className="mb-2 flex gap-x-2 gap-y-2">
                   <div className="basis-1/4">
                     <div className="line-clamp-1">Número da versão</div>
                     <input
@@ -479,6 +511,26 @@ export function GameCreate() {
                     />
                   </div>
                 </div>
+                <div className="mb-2">
+                  {builds &&
+                    Array.from(builds).map((build, index) => {
+                      return <div key={index}>{build.name}</div>
+                    })}
+                </div>
+                <label
+                  htmlFor="builds"
+                  className="mr-2 inline-block self-end rounded bg-teal-600 px-5 py-3  font-medium leading-none  text-white transition-colors hover:bg-teal-800"
+                >
+                  Uploud de Arquivos
+                  <input
+                    onChange={handleSelectedBuilds}
+                    name="builds"
+                    id="builds"
+                    type="file"
+                    className="invisible h-0 w-0"
+                    multiple
+                  />
+                </label>
               </div>
               <div>
                 <div className="mb-4 font-bold">Preço</div>

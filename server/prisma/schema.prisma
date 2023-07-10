@@ -117,6 +117,7 @@ model Build {
 
   buildNumber Int
   description String
+  buildUrl    String
   createAt    DateTime @default(now())
   updateAt    DateTime @default(now()) @updatedAt
 

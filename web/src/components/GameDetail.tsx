@@ -68,7 +68,7 @@ export function GameDetail({ uurest }: { uurest: string }) {
             </div>
           </div>
         </div>
-        <div className="h-96 p-3 pt-6 text-justify">{game.description}</div>
+        <div className="h-auto p-3 pt-6 text-justify">{game.description}</div>
         <div className="flex gap-x-3 px-3">
           <div className="flex flex-1 flex-col gap-y-10">
             <GameBuy game={game} />

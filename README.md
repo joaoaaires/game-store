@@ -1,13 +1,10 @@
 =========== FALTA ===========
 - Listagem de jogos
   Faltar fazer paginação
-- Detalhe de jogos
-  Dowload de Build
 - Edição de jogo
 
 =========== FAZENDO ===========
-- Create Jogo
-  Upload de Build
+
 
 =========== OK ===========
 - Detalhe de jogos
@@ -18,3 +15,7 @@
   Validacao de form
 - Meus Jogos
     Buscar de jogo
+- Create Jogo
+  Upload de Build
+- Detalhe de jogos
+  Dowload de Build

@@ -15,6 +15,7 @@ export interface Screenshots {
 export interface Build {
   buildNumber: number
   description: string
+  buildUrl: string
 }
 
 export interface Price {

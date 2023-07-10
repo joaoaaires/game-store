@@ -8,6 +8,7 @@ import Image from 'next/image'
 import { api } from '@/lib/api'
 import Cookie from 'js-cookie'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 
 interface GameBuyProps {
   game: Game
@@ -67,22 +68,13 @@ export function GameBuy({ game }: GameBuyProps) {
                 <div className="rounded bg-black-800 px-2 py-1 font-bold text-teal-600">
                   R$ {price.price.toFixed(2)}
                 </div>
-                {!price.paidGame ? (
-                  <button
-                    type="button"
-                    onClick={() => setShow(true)}
-                    className="cursor-pointer rounded bg-teal-600 px-3 py-1 font-semibold uppercase hover:bg-teal-700"
-                  >
-                    Comprar
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    className="cursor-pointer rounded bg-teal-600 px-3 py-1 font-semibold uppercase hover:bg-teal-700"
-                  >
-                    DOWNLOAD
-                  </button>
-                )}
+                <button
+                  type="button"
+                  onClick={() => setShow(true)}
+                  className="cursor-pointer rounded bg-teal-600 px-3 py-1 font-semibold uppercase hover:bg-teal-700"
+                >
+                  {!price.paidGame ? 'COMPRAR' : 'DOWNLOAD'}
+                </button>
               </div>
 
               {/* Modal */}
@@ -142,19 +134,30 @@ export function GameBuy({ game }: GameBuyProps) {
                                   >
                                     <DownloadCloud className="h-4 w-4" />
                                     {`${build.description} (Build ${build.buildNumber})`}
+                                    <Link
+                                      href={`${build.buildUrl}`}
+                                      className="inline-flex w-full justify-center rounded-md bg-teal-600 px-3 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-teal-700 sm:ml-3 sm:w-auto"
+                                    >
+                                      DOWNLOAD
+                                    </Link>
                                   </div>
                                 )
                               })}
                           </div>
                         </div>
                         <div className="bg-black-700 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
-                          <button
-                            type="button"
-                            className="inline-flex w-full justify-center rounded-md bg-teal-600 px-3 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-teal-700 sm:ml-3 sm:w-auto"
-                            onClick={handleBuyGame}
-                          >
-                            Comprar
-                          </button>
+                          {!price.paidGame ? (
+                            <button
+                              type="button"
+                              className="inline-flex w-full justify-center rounded-md bg-teal-600 px-3 py-2 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-teal-700 sm:ml-3 sm:w-auto"
+                              onClick={handleBuyGame}
+                            >
+                              Comprar
+                            </button>
+                          ) : (
+                            <></>
+                          )}
+
                           <button
                             type="button"
                             className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-black-400 sm:mt-0 sm:w-auto"
