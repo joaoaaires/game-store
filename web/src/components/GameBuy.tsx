@@ -13,6 +13,18 @@ interface GameBuyProps {
 export function GameBuy({ game }: GameBuyProps) {
   const [show, setShow] = useState<boolean>(false)
   const cancelButtonRef = useRef(null)
+  const prices = game.prices
+
+  if (!prices.length) {
+    return (
+      <div className="relative flex flex-col rounded bg-black-600 px-3 pb-6 pt-3 text-xl">
+        <div>Comprar {game.title}</div>
+        <div className="text-xs font-semibold uppercase">
+          {game.systems.map((system) => system.description).join(', ')}
+        </div>
+      </div>
+    )
+  }
 
   return (
     <>
@@ -31,13 +43,22 @@ export function GameBuy({ game }: GameBuyProps) {
                 <div className="rounded bg-black-800 px-2 py-1 font-bold text-teal-600">
                   R$ {price.price.toFixed(2)}
                 </div>
-                <button
-                  type="button"
-                  onClick={() => setShow(true)}
-                  className="cursor-pointer rounded bg-teal-600 px-3 py-1 font-semibold uppercase hover:bg-teal-700"
-                >
-                  Comprar
-                </button>
+                {!price.paidGame ? (
+                  <button
+                    type="button"
+                    onClick={() => setShow(true)}
+                    className="cursor-pointer rounded bg-teal-600 px-3 py-1 font-semibold uppercase hover:bg-teal-700"
+                  >
+                    Comprar
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    className="cursor-pointer rounded bg-teal-600 px-3 py-1 font-semibold uppercase hover:bg-teal-700"
+                  >
+                    DOWNLOAD
+                  </button>
+                )}
               </div>
 
               {/* Modal */}

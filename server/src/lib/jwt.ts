@@ -37,11 +37,9 @@ export async function validationToken(
   }
 
   try {
-    const { payload, protectedHeader } = await jwtVerify(authorization, secret)
+    const { payload } = await jwtVerify(authorization, secret)
 
-    console.log(protectedHeader)
-    console.log(payload)
-
+    req.params.usuario = JSON.stringify(payload)
     return next()
   } catch (e) {
     console.log(e)
@@ -50,19 +48,26 @@ export async function validationToken(
       message: 'Not Authorization',
     })
   }
+}
 
-  /*
-  jwt.verify(req.headers.authorization, 'shhhhh', function (err, usuario) {
-    if (err) throw err
+export async function validationTokenWithOut(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  const authorization = req.headers.authorization
 
-    console.log('usuario -> ', usuario)
+  if (!authorization) {
+    return next()
+  }
 
-    if (usuario) {
-      req.params.usuario = usuario
-      return next()
-    } else {
-      return res.status(401).send('Not Authorization')
-    }
-  })
-  */
+  try {
+    const { payload } = await jwtVerify(authorization, secret)
+
+    req.params.usuario = JSON.stringify(payload)
+    return next()
+  } catch (e) {
+    console.log(e)
+    return next()
+  }
 }

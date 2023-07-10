@@ -1,17 +1,12 @@
 import { z } from 'zod'
-import { ErrorMessageOptions, generateErrorMessage } from 'zod-error'
 import { Request, Response } from 'express'
 
 import { prisma } from '../lib/prisma'
-import { generateObjectResponse } from '../lib/object-response'
+import {
+  generateObjectResponse,
+  generateErrorResponse,
+} from '../lib/object-response'
 import { generateToken } from '../lib/jwt'
-
-const options: ErrorMessageOptions = {
-  delimiter: {
-    error: '#',
-  },
-  transform: ({ messageComponent }) => `${messageComponent}`,
-}
 
 export async function signUp(req: Request, res: Response) {
   const result = generateBodySchemaSignUp(req)
@@ -19,7 +14,7 @@ export async function signUp(req: Request, res: Response) {
   if (!result.success) {
     return generateObjectResponse(res, {
       status: 400,
-      message: generateErrorMessage(result.error.issues, options),
+      message: generateErrorResponse(result.error.issues),
     })
   }
 
@@ -62,7 +57,7 @@ export async function signIn(req: Request, res: Response) {
   if (!result.success) {
     return generateObjectResponse(res, {
       status: 400,
-      message: generateErrorMessage(result.error.issues, options),
+      message: generateErrorResponse(result.error.issues),
     })
   }
 

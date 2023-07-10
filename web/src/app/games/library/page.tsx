@@ -1,9 +1,12 @@
-import LibraryBody from './page-body'
+import { redirect } from 'next/navigation'
+import { getUser } from '@/util/auth'
+import { GamesLibrary } from '@/components/GamesLibrary'
 
 export default function Library() {
-  return (
-    <div className="flex h-screen flex-col">
-      <LibraryBody />
-    </div>
-  )
+  const user = getUser()
+  if (!user) {
+    return redirect('/')
+  }
+
+  return <GamesLibrary />
 }

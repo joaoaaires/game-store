@@ -5,6 +5,7 @@ import Game from './game/core/game'
 import { api } from '@/lib/api'
 import ObjectResponse from './shared/core/object-response'
 import Image from 'next/image'
+import Cookie from 'js-cookie'
 import { GameDetailInfo } from './GameDetailInfo'
 import { GameScreens } from './GameScreens'
 import { GameBuy } from './GameBuy'
@@ -16,7 +17,14 @@ export function GameDetail({ uurest }: { uurest: string }) {
 
   const fetchGame = useCallback(async () => {
     try {
-      const result = await api.get(`/games/${uurest}`)
+      const token = Cookie.get('token')
+      const headers = token
+        ? {
+            Authorization: `${token}`,
+          }
+        : {}
+
+      const result = await api.get(`/games/${uurest}`, { headers })
       const response: ObjectResponse<Game> = result.data
       setGame(response.data)
     } catch (e) {
@@ -60,7 +68,7 @@ export function GameDetail({ uurest }: { uurest: string }) {
             </div>
           </div>
         </div>
-        <div className="p-3 pt-6 text-justify">{game.description}</div>
+        <div className="h-96 p-3 pt-6 text-justify">{game.description}</div>
         <div className="flex gap-x-3 px-3">
           <div className="flex flex-1 flex-col gap-y-10">
             <GameBuy game={game} />

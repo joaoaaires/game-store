@@ -18,6 +18,8 @@ model User {
   isDev    Boolean  @default(false)
   createAt DateTime @default(now())
   updateAt DateTime @updatedAt
+
+  games Game[]
 }
 
 model Category {
@@ -39,7 +41,9 @@ model OperationalSystems {
 }
 
 model Game {
-  id               Int      @id @default(autoincrement())
+  id     Int @id @default(autoincrement())
+  userId Int
+
   title            String
   shortDescription String   @db.Text
   description      String   @db.Text
@@ -55,6 +59,7 @@ model Game {
   screens    Screenshots[]
   builds     Build[]
   prices     Price[]
+  user       User                @relation(fields: [userId], references: [id])
 }
 
 model GamesOnCategories {
@@ -101,14 +106,14 @@ model Build {
   createAt    DateTime @default(now())
   updateAt    DateTime @default(now()) @updatedAt
 
-  game Game? @relation(fields: [gameId], references: [id])
+  game Game @relation(fields: [gameId], references: [id])
 }
 
 model Price {
-  id     Int  @id @default(autoincrement())
-  gameId Int?
+  id     Int @id @default(autoincrement())
+  gameId Int
 
   price Decimal
 
-  game Game? @relation(fields: [gameId], references: [id])
+  game Game @relation(fields: [gameId], references: [id])
 }

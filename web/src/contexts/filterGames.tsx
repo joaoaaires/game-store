@@ -13,6 +13,7 @@ export interface FilterGames {
   system?: string
   page?: number
   perPage?: number
+  perUser?: boolean
 }
 
 export const FilterGamesContext = createContext<{

@@ -1,4 +1,6 @@
 import { Response } from 'express'
+import { ZodIssue } from 'zod'
+import { ErrorMessageOptions, generateErrorMessage } from 'zod-error'
 
 interface ObjectResponse<T> {
   status: number
@@ -14,5 +16,17 @@ export function generateObjectResponse<T>(
     status: props.status,
     data: props.data,
     message: props.message,
+  })
+}
+
+export function generateErrorResponse(
+  issues: ZodIssue[],
+  options?: ErrorMessageOptions | undefined,
+) {
+  return generateErrorMessage(issues, {
+    delimiter: {
+      error: '#',
+    },
+    transform: ({ messageComponent }) => `${messageComponent}`,
   })
 }

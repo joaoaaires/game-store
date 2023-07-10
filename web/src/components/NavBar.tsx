@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { ChevronDown, User2, Library, Gamepad2, LogOut } from 'lucide-react'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 
 import Logo from '../assets/logo.svg'
 import Image from 'next/image'
@@ -11,16 +11,26 @@ import User from '@/util/user'
 import { useEffect, useState } from 'react'
 import { NavBarDropdown } from './NavBarDropdown'
 import { NavBarSearchInput } from './NavBarSearchInput'
+import { useSearch } from '@/hooks/useSearch'
 
 export function NavBar() {
+  const router = useRouter()
   const pathname = usePathname()
   const showNavBar = pathname !== '/accounts'
   const activeBrowseGames = pathname === '/'
+  const showNavBarSearchInput =
+    pathname === '/' || pathname === '/games/library'
   const [user, setUser] = useState<User | null>(null)
+  const { setSearch } = useSearch()
 
   useEffect(() => {
     setUser(getUserUseClient())
   }, [])
+
+  function handlerGoToHome() {
+    setSearch('')
+    router.push('/')
+  }
 
   if (!showNavBar) {
     return <></>
@@ -34,16 +44,19 @@ export function NavBar() {
           {/* Logo */}
           <Image src={Logo} alt="" className="h-12 w-12" />
           {/* Buttom Home */}
-          <Link href="/" className="relative mx-6 hidden py-4 md:flex ">
+          <button
+            onClick={handlerGoToHome}
+            className="relative mx-6 hidden py-4 md:flex "
+          >
             Lista de Jogos
             {activeBrowseGames ? (
               <div className="absolute right-0 top-[52px] h-1 w-full bg-teal-600" />
             ) : (
               <></>
             )}
-          </Link>
+          </button>
           {/* Input Filter */}
-          {activeBrowseGames ? <NavBarSearchInput /> : <></>}
+          {showNavBarSearchInput ? <NavBarSearchInput /> : <></>}
         </div>
         {/* Right */}
         <div className="flex gap-3">

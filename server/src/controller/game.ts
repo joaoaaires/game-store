@@ -1,19 +1,14 @@
 import { z } from 'zod'
-import { ErrorMessageOptions, generateErrorMessage } from 'zod-error'
 import { Request, Response, Express } from 'express'
 import moment from 'moment'
 
 import { prisma } from '../lib/prisma'
-import { generateObjectResponse } from '../lib/object-response'
+import {
+  generateObjectResponse,
+  generateErrorResponse,
+} from '../lib/object-response'
 import { Game } from '../model'
 import { Prisma } from '@prisma/client'
-
-const options: ErrorMessageOptions = {
-  delimiter: {
-    error: '#',
-  },
-  transform: ({ messageComponent }) => `${messageComponent}`,
-}
 
 export async function create(req: Request, res: Response) {
   const result = generateBodySchema(req)
@@ -21,14 +16,17 @@ export async function create(req: Request, res: Response) {
   if (!result.success) {
     return generateObjectResponse(res, {
       status: 400,
-      message: generateErrorMessage(result.error.issues, options),
+      message: generateErrorResponse(result.error.issues),
     })
   }
+
+  const { sub } = JSON.parse(req.params.usuario)
 
   const newGame: Game = result.data
 
   const gameDb = await prisma.game.create({
     data: {
+      userId: parseInt(sub),
       title: newGame.title,
       shortDescription: newGame.shortDescription,
       description: newGame.description,
@@ -95,7 +93,7 @@ export async function createValidation(req: Request, res: Response) {
   if (!result.success) {
     return generateObjectResponse(res, {
       status: 400,
-      message: generateErrorMessage(result.error.issues, options),
+      message: generateErrorResponse(result.error.issues),
     })
   }
 
@@ -108,7 +106,6 @@ export async function createValidation(req: Request, res: Response) {
 }
 
 export async function readAll(req: Request, res: Response) {
-  console.log(req.query)
   const schemaParams = z.object({
     query: z.string().optional(),
     price: z.string().optional(),
@@ -116,6 +113,7 @@ export async function readAll(req: Request, res: Response) {
     category: z.string().optional(),
     page: z.string().optional(),
     perPage: z.string().optional(),
+    perUser: z.string().optional(),
   })
 
   const result = schemaParams.safeParse(req.query)
@@ -123,13 +121,28 @@ export async function readAll(req: Request, res: Response) {
   if (!result.success) {
     return generateObjectResponse(res, {
       status: 400,
-      message: generateErrorMessage(result.error.issues),
+      message: generateErrorResponse(result.error.issues),
     })
   }
 
-  const { query, price, days, category, page, perPage } = result.data
+  const { query, price, days, category, page, perPage, perUser } = result.data
 
   let where = {}
+  if (perUser && perUser === 'true') {
+    let userId = 0
+    const usuario = req.params.usuario
+    if (usuario) {
+      const { sub } = JSON.parse(usuario)
+      userId = parseInt(sub)
+    }
+
+    where = {
+      ...where,
+      ...{
+        userId,
+      },
+    }
+  }
   if (query) where = { ...where, ...{ title: { contains: query } } }
   if (category) {
     where = {
@@ -230,7 +243,7 @@ export async function read(req: Request, res: Response) {
   if (!result.success) {
     return generateObjectResponse(res, {
       status: 400,
-      message: generateErrorMessage(result.error.issues),
+      message: generateErrorResponse(result.error.issues),
     })
   }
 
@@ -263,8 +276,20 @@ export async function read(req: Request, res: Response) {
     })
   }
 
+  let paidGame = false
+  let showPrice = false
+  const usuario = req.params.usuario
+  if (usuario) {
+    const { sub } = JSON.parse(usuario)
+    showPrice = true
+    paidGame = gameDb.userId === parseInt(sub)
+  }
+
+  console.log(showPrice)
+
   const gameFormatter = {
     id: gameDb.id,
+    userId: gameDb.userId,
     title: gameDb.title,
     shortDescription: gameDb.shortDescription,
     description: gameDb.description,
@@ -288,10 +313,12 @@ export async function read(req: Request, res: Response) {
       const { id, screenUrl } = screen
       return { id, screenUrl }
     }),
-    prices: gameDb.prices.map((priceValue) => {
-      const { id, price } = priceValue
-      return { id, price: Number(price) }
-    }),
+    prices: showPrice
+      ? gameDb.prices.map((priceValue) => {
+          const { id, price } = priceValue
+          return { id, price: Number(price), paidGame }
+        })
+      : [],
     builds: gameDb.builds.map((build) => {
       const { id, buildNumber, description } = build
       return { id, buildNumber, description }
@@ -310,7 +337,7 @@ export async function update(req: Request, res: Response) {
   if (!resultParams.success) {
     return generateObjectResponse(res, {
       status: 400,
-      message: generateErrorMessage(resultParams.error.issues),
+      message: generateErrorResponse(resultParams.error.issues),
     })
   }
 
@@ -321,7 +348,7 @@ export async function update(req: Request, res: Response) {
   if (!resultBody.success) {
     return generateObjectResponse(res, {
       status: 400,
-      message: generateErrorMessage(resultBody.error.issues),
+      message: generateErrorResponse(resultBody.error.issues),
     })
   }
 

@@ -4,7 +4,7 @@ import { FilterGamesContextProvider } from '@/contexts/filterGames'
 
 export default function Home() {
   return (
-    <div className="relative h-full bg-blue-500">
+    <div className="relative h-full ">
       <FilterGamesContextProvider>
         <div className="absolute left-0 top-0 h-full w-2/12 bg-black-400 text-black-900">
           <GamesFilter />

@@ -10,13 +10,13 @@ import {
   update,
   upload,
 } from '../controller/game'
-import { validationToken } from '../lib/jwt'
+import { validationToken, validationTokenWithOut } from '../lib/jwt'
 
 export default (router: Router) => {
   router.post('/games', validationToken, create)
   router.post('/games/validation', validationToken, createValidation)
-  router.get('/games', readAll)
-  router.get('/games/:game', read)
+  router.get('/games', validationTokenWithOut, readAll)
+  router.get('/games/:game', validationTokenWithOut, read)
   router.put('/games/:id', validationToken, update)
 
   const storage = multer.diskStorage({

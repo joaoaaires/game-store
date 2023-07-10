@@ -6,6 +6,7 @@ import Screen from './screen'
 
 export default interface Game {
   id: string
+  userId: number
   title: string
   shortDescription: string
   description: string
