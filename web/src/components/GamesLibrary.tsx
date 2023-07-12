@@ -55,10 +55,10 @@ export function GamesLibrary() {
   }
 
   return (
-    <div className="flex h-full bg-black-400 lg:px-[6rem] xl:px-[16rem] 2xl:px-[22rem]">
-      <div className="flex h-full w-full flex-col bg-white p-4">
+    <div className="flex h-auto bg-black-400 lg:px-[6rem] xl:px-[16rem] 2xl:px-[22rem]">
+      <div className="flex h-auto w-full flex-col bg-white p-4">
         <div className="text-2xl font-bold text-teal-600">Meus Jogos</div>
-        <div className="flex flex-wrap overflow-hidden">
+        <div className="flex flex-wrap">
           {games &&
             games.map((game) => <GamesItemList key={game.id} item={game} />)}
         </div>

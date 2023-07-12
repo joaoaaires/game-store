@@ -213,6 +213,7 @@ export async function readAll(req: Request, res: Response) {
     data: games.map((game) => {
       return {
         id: game.id,
+        userId: game.userId,
         avatarUrl: game.avatarUrl,
         title: game.title,
         shortDescription: game.shortDescription,

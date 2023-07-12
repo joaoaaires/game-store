@@ -4,6 +4,7 @@ import Image from 'next/image'
 
 export interface GamesItemListProps {
   id: number
+  userId: number
   avatarUrl: string
   title: string
   shortDescription: string
@@ -14,7 +15,14 @@ export interface GamesItemListProps {
   price: number
 }
 
-export function GamesItemList({ item }: { item: GamesItemListProps }) {
+export function GamesItemList({
+  item,
+  handlerUpdateGame,
+}: {
+  item: GamesItemListProps
+  handlerUpdateGame?: (id: number) => void
+}) {
+  console.log(item.userId)
   return (
     <div className="w-full p-3 sm:basis-1/2 md:basis-1/3  lg:basis-1/5">
       <a
@@ -36,8 +44,9 @@ export function GamesItemList({ item }: { item: GamesItemListProps }) {
         <div className="text-xs text-black-400 line-clamp-2">
           {item.categories.map((category) => category.description).join(', ')}
         </div>
-        <div className="text-lg font-bold text-black-400 line-clamp-2">
+        <div className="flex justify-between text-lg font-bold text-black-400 line-clamp-2">
           {item.price ? `R$ ${item.price.toFixed(2)}` : `Free`}
+          <div>TESTE</div>
         </div>
         <div></div>
       </a>
