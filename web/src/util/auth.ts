@@ -2,7 +2,7 @@ import decode from 'jwt-decode'
 import { cookies } from 'next/headers'
 import User from './user'
 
-export function getUser(): User | null {
+export function getUser() {
   const token = cookies().get('token')?.value
 
   if (!token) {

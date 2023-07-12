@@ -24,7 +24,7 @@ export default function AccountBody() {
       const user = response.data
       if (user) {
         document.cookie = `token=${user.token}; Path=/; max-age=2592000`
-        router.push('/')
+        router.push('/api/login')
       }
     } catch (e) {
       const { response } = e as AxiosError<ObjectResponse<null>>

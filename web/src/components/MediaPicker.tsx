@@ -6,15 +6,17 @@ import { ChangeEvent, ReactNode, useState } from 'react'
 interface MediaPickerProps {
   htmlFor: string
   children: ReactNode
+  url?: string | null
   multiple?: boolean
 }
 
 export function MediaPicker({
   htmlFor,
   children,
+  url,
   multiple = false,
 }: MediaPickerProps) {
-  const [preview, setPreview] = useState<string | null>(null)
+  const [preview, setPreview] = useState<string | undefined | null>(url)
 
   function handleSelectedFile(event: ChangeEvent<HTMLInputElement>) {
     const { files } = event.target
@@ -37,7 +39,7 @@ export function MediaPicker({
           height={500}
           src={preview}
           alt=""
-          className="aspect-video h-full w-full object-cover"
+          className="aspect-video h-full w-full rounded object-cover"
         />
       ) : (
         children

@@ -6,12 +6,12 @@ import { usePathname, useRouter } from 'next/navigation'
 
 import Logo from '../assets/logo.svg'
 import Image from 'next/image'
-import { getUserUseClient } from '@/util/authUseClient'
 import User from '@/util/user'
-import { useEffect, useState } from 'react'
 import { NavBarDropdown } from './NavBarDropdown'
 import { NavBarSearchInput } from './NavBarSearchInput'
 import { useSearch } from '@/hooks/useSearch'
+import { getUserUseClient } from '@/util/authUseClient'
+import { useState, useEffect, useCallback } from 'react'
 
 export function NavBar() {
   const router = useRouter()
@@ -23,9 +23,14 @@ export function NavBar() {
   const [user, setUser] = useState<User | null>(null)
   const { setSearch } = useSearch()
 
+  const fetchUser = useCallback(() => {
+    const user = getUserUseClient()
+    setUser(user)
+  }, [setUser])
+
   useEffect(() => {
-    setUser(getUserUseClient())
-  }, [])
+    fetchUser()
+  }, [fetchUser])
 
   function handlerGoToHome() {
     setSearch('')

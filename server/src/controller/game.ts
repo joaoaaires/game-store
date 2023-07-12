@@ -345,6 +345,108 @@ export async function read(req: Request, res: Response) {
   })
 }
 
+export async function readById(req: Request, res: Response) {
+  const schemaParams = z.object({
+    game: z
+      .string({
+        required_error: 'params-is-required',
+      })
+      .nonempty({
+        message: 'params-is-empty',
+      }),
+  })
+
+  const result = schemaParams.safeParse(req.params)
+
+  if (!result.success) {
+    return generateObjectResponse(res, {
+      status: 400,
+      message: generateErrorResponse(result.error.issues),
+    })
+  }
+
+  const { game } = result.data
+
+  const id = Number(game)
+  const gameDb = await prisma.game.findFirst({
+    where: id ? { id } : { uurest: game },
+    include: {
+      categories: {
+        include: {
+          category: true,
+        },
+      },
+      systems: {
+        include: {
+          operationalSystems: true,
+        },
+      },
+      screens: true,
+      prices: true,
+      builds: true,
+    },
+  })
+
+  if (!gameDb) {
+    return generateObjectResponse(res, {
+      status: 400,
+      message: 'game-not-found',
+    })
+  }
+
+  const usuario = req.params.usuario
+  if (usuario) {
+    const { sub } = JSON.parse(usuario)
+    if (gameDb.userId !== parseInt(sub)) {
+      return generateObjectResponse(res, {
+        status: 400,
+        message: 'game-not-found',
+      })
+    }
+  }
+
+  const gameFormatter = {
+    id: gameDb.id,
+    userId: gameDb.userId,
+    title: gameDb.title,
+    shortDescription: gameDb.shortDescription,
+    description: gameDb.description,
+    actor: gameDb.actor,
+    avatarUrl: gameDb.avatarUrl,
+    headerUrl: gameDb.headerUrl,
+    uurest: gameDb.uurest,
+    createAt: gameDb.createAt,
+    updateAt: gameDb.updateAt,
+    categories: gameDb.categories.map((category) => {
+      const categoryChild = category.category
+      const { id, description } = categoryChild
+      return { id, description }
+    }),
+    systems: gameDb.systems.map((system) => {
+      const systemChild = system.operationalSystems
+      const { id, description } = systemChild
+      return { id, description }
+    }),
+    screens: gameDb.screens.map((screen) => {
+      const { id, screenUrl } = screen
+      return { id, screenUrl }
+    }),
+    prices: gameDb.prices.map((priceValue) => {
+      const { id, price } = priceValue
+      return { id, price: Number(price) }
+    }),
+    builds: gameDb.builds.map((build) => {
+      const { id, buildNumber, description, buildUrl } = build
+      return { id, buildNumber, description, buildUrl }
+    }),
+  }
+
+  return generateObjectResponse(res, {
+    status: 200,
+    data: gameFormatter,
+  })
+}
+
 export async function update(req: Request, res: Response) {
   const resultParams = generateParamsSchema(req)
 

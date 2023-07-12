@@ -8,8 +8,14 @@ import { useSearch } from '@/hooks/useSearch'
 import Cookie from 'js-cookie'
 import { useFilterGames } from '@/hooks/useFilterGames'
 import { useDebounce } from '@/hooks/useDebounce'
+import User from '@/util/user'
 
-export function GamesLibrary() {
+interface GamesLibraryProps {
+  user: User
+}
+
+export function GamesLibrary({ user }: GamesLibraryProps) {
+  const userId = parseInt(user.sub)
   const [games, setGames] = useState<GamesItemListProps[]>([])
 
   const { search } = useSearch()
@@ -60,7 +66,13 @@ export function GamesLibrary() {
         <div className="text-2xl font-bold text-teal-600">Meus Jogos</div>
         <div className="flex flex-wrap">
           {games &&
-            games.map((game) => <GamesItemList key={game.id} item={game} />)}
+            games.map((game) => (
+              <GamesItemList
+                key={game.id}
+                item={game}
+                showUpdateGame={game.userId === userId}
+              />
+            ))}
         </div>
       </div>
     </div>

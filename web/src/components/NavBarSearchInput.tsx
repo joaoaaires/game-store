@@ -1,9 +1,17 @@
+'use client'
+
 import { useSearch } from '@/hooks/useSearch'
+import { usePathname } from 'next/navigation'
 
 export function NavBarSearchInput() {
+  const pathname = usePathname()
+
+  const showNavBarSearchInput =
+    pathname === '/' || pathname === '/games/library'
+
   const { search, setSearch } = useSearch()
 
-  return (
+  return showNavBarSearchInput ? (
     <input
       type="text"
       name="search"
@@ -12,5 +20,7 @@ export function NavBarSearchInput() {
       value={search}
       onChange={(event) => setSearch(event.target.value)}
     />
+  ) : (
+    <></>
   )
 }

@@ -1,6 +1,9 @@
 'use client'
 
+import { MouseEvent } from 'react'
+import { Edit } from 'lucide-react'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 
 export interface GamesItemListProps {
   id: number
@@ -17,12 +20,18 @@ export interface GamesItemListProps {
 
 export function GamesItemList({
   item,
-  handlerUpdateGame,
+  showUpdateGame,
 }: {
   item: GamesItemListProps
-  handlerUpdateGame?: (id: number) => void
+  showUpdateGame: boolean
 }) {
-  console.log(item.userId)
+  const router = useRouter()
+
+  function handlerUpdateGame(event: MouseEvent<HTMLButtonElement>) {
+    event.preventDefault()
+    router.push(`/games/update/${item.id}`)
+  }
+
   return (
     <div className="w-full p-3 sm:basis-1/2 md:basis-1/3  lg:basis-1/5">
       <a
@@ -46,7 +55,13 @@ export function GamesItemList({
         </div>
         <div className="flex justify-between text-lg font-bold text-black-400 line-clamp-2">
           {item.price ? `R$ ${item.price.toFixed(2)}` : `Free`}
-          <div>TESTE</div>
+          {showUpdateGame ? (
+            <button onClick={handlerUpdateGame}>
+              <Edit className="hover:text-white" />
+            </button>
+          ) : (
+            <></>
+          )}
         </div>
         <div></div>
       </a>

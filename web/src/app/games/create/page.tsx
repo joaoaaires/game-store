@@ -8,5 +8,5 @@ export default function Game() {
     return redirect('/')
   }
 
-  return <GameCreate />
+  return <GameCreate user={user} />
 }

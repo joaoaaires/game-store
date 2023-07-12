@@ -78,7 +78,7 @@ export function GamesList() {
   return (
     <div className="flex flex-wrap overflow-hidden">
       {games.map((game) => (
-        <GamesItemList key={game.id} item={game} />
+        <GamesItemList key={game.id} item={game} showUpdateGame={false} />
       ))}
     </div>
   )

@@ -1,34 +1,36 @@
 'use client'
 
-import { Camera, Plus } from 'lucide-react'
-import { MediaPicker } from './MediaPicker'
+import User from '@/util/user'
 import {
-  ChangeEvent,
-  FormEvent,
-  Fragment,
   useCallback,
   useEffect,
   useState,
+  ChangeEvent,
+  Fragment,
+  FormEvent,
 } from 'react'
-import Category from './game/core/category'
-import { api } from '@/lib/api'
-import { CurrencyInput } from 'react-currency-mask'
-import ObjectResponse from './shared/core/object-response'
-import { Listbox, Transition } from '@headlessui/react'
-import OperationalSystems from './game/core/operational-systems'
-import { useRouter } from 'next/navigation'
-import Image from 'next/image'
 import Cookie from 'js-cookie'
-import { AxiosError } from 'axios'
+import Game from './game/core/game'
+import { api } from '@/lib/api'
+import ObjectResponse from './shared/core/object-response'
 import Alert from './Alert'
+import { Camera, Plus } from 'lucide-react'
+import { Listbox, Transition } from '@headlessui/react'
+import { MediaPicker } from './MediaPicker'
+import Image from 'next/image'
+import Category from './game/core/category'
+import OperationalSystems from './game/core/operational-systems'
+import { CurrencyInput } from 'react-currency-mask'
+import { AxiosError } from 'axios'
 import { formatterMessageErro } from '@/util/formatter'
-import User from '@/util/user'
+import { useRouter } from 'next/navigation'
 
-interface GameCreateProps {
+interface GameUpdateProps {
+  id: number
   user: User
 }
 
-export function GameCreate({ user }: GameCreateProps) {
+export function GameUpdate({ id, user }: GameUpdateProps) {
   const router = useRouter()
 
   const [uurest, setUurest] = useState<string>('')
@@ -41,6 +43,32 @@ export function GameCreate({ user }: GameCreateProps) {
   const [builds, setBuilds] = useState<FileList | null>()
   const [screens, setScreens] = useState<FileList | null>()
   const [msgError, setMsgError] = useState<string | null>(null)
+  const [game, setGame] = useState<Game | null | undefined>(null)
+  const [error, setError] = useState<string | null | undefined>(null)
+
+  const fetchGame = useCallback(async () => {
+    try {
+      const token = Cookie.get('token')
+      const headers = token
+        ? {
+            Authorization: `${token}`,
+          }
+        : {}
+
+      const result = await api.get(`/games/${id}`, { headers })
+      const response: ObjectResponse<Game> = result.data
+      const game = response.data
+      if (game) {
+        setUurest(game.uurest)
+        setSelectedCategories(game.categories)
+        setSelectedSystems(game.systems)
+      }
+      setGame(game)
+    } catch (e) {
+      console.log(e)
+      setError('Jogo não encontrado')
+    }
+  }, [id])
 
   const fetchCategories = useCallback(async () => {
     const result = await api.get('/categories')
@@ -55,9 +83,10 @@ export function GameCreate({ user }: GameCreateProps) {
   }, [])
 
   useEffect(() => {
+    fetchGame()
     fetchCategories()
     fetchSystems()
-  }, [fetchCategories, fetchSystems])
+  }, [fetchGame, fetchCategories, fetchSystems])
 
   function handleUpdateUurest(event: ChangeEvent<HTMLInputElement>) {
     let newValue = event.target.value
@@ -70,7 +99,27 @@ export function GameCreate({ user }: GameCreateProps) {
   }
 
   function handleSelectedCategories(categories: Category[]) {
-    setSelectedCategories(categories)
+    const duplicates = findDuplicates(categories)
+    if (duplicates.length) {
+      setSelectedCategories(categories.filter((c) => c.id !== duplicates[0].id))
+    } else {
+      setSelectedCategories(categories)
+    }
+  }
+
+  function findDuplicates<Type>(arr: Type[]): Type[] {
+    const duplicates: Type[] = []
+    const countMap: { [key: string]: number } = {}
+
+    for (const item of arr) {
+      const stringifiedItem = JSON.stringify(item)
+      countMap[stringifiedItem] = (countMap[stringifiedItem] || 0) + 1
+      if (countMap[stringifiedItem] === 2) {
+        duplicates.push(JSON.parse(stringifiedItem))
+      }
+    }
+
+    return duplicates
   }
 
   function handleIsSelectedSystem(system: OperationalSystems) {
@@ -78,7 +127,12 @@ export function GameCreate({ user }: GameCreateProps) {
   }
 
   function handleSelectedSystems(systems: OperationalSystems[]) {
-    setSelectedSystems(systems)
+    const duplicates = findDuplicates(systems)
+    if (duplicates.length) {
+      setSelectedSystems(systems.filter((c) => c.id !== duplicates[0].id))
+    } else {
+      setSelectedSystems(systems)
+    }
   }
 
   function handleSelectedBuilds(event: ChangeEvent<HTMLInputElement>) {
@@ -101,7 +155,7 @@ export function GameCreate({ user }: GameCreateProps) {
     setScreens(files)
   }
 
-  async function handleCreateGame(event: FormEvent<HTMLFormElement>) {
+  async function handleUpdateGame(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
 
     const token = Cookie.get('token')
@@ -138,52 +192,64 @@ export function GameCreate({ user }: GameCreateProps) {
 
     // headerUrl to jsonBody
     const headerUrl = formData.get('headerUrl') as File | null
-    if (headerUrl) {
-      body = {
-        ...body,
-        ...{
-          headerUrl: headerUrl.name,
-        },
-      }
+    body = {
+      ...body,
+      ...{
+        headerUrl:
+          headerUrl && headerUrl.name ? headerUrl.name : game?.headerUrl,
+      },
     }
 
     // avatarUrl to jsonBody
     const avatarUrl = formData.get('avatarUrl') as File | null
-    if (avatarUrl) {
-      body = {
-        ...body,
-        ...{
-          avatarUrl: avatarUrl.name,
-        },
-      }
+    body = {
+      ...body,
+      ...{
+        avatarUrl:
+          avatarUrl && avatarUrl.name ? avatarUrl.name : game?.avatarUrl,
+      },
     }
 
     // build to buildsJsonBody
     const buildNumber = Number(formData.get('buildNumber'))
     const buildDescription = formData.get('buildDescription')
-    if (buildNumber && buildDescription && builds) {
+    const buildFiles = builds
+      ? Array.from(builds).map((build) => {
+          return {
+            buildNumber,
+            description: buildDescription,
+            buildUrl: build.name,
+          }
+        })
+      : game?.builds.map((build) => {
+          return {
+            buildNumber,
+            description: buildDescription,
+            buildUrl: build.buildUrl,
+          }
+        })
+    if (buildNumber && buildDescription && buildFiles) {
       body = {
         ...body,
         ...{
-          builds: Array.from(builds).map((build) => {
-            return {
-              buildNumber,
-              description: buildDescription,
-              buildUrl: build.name,
-            }
-          }),
+          builds: buildFiles,
         },
       }
     }
 
     // screens to screensJsonBody
-    if (screens) {
+    const screensFiles = screens
+      ? Array.from(screens).map((value) => {
+          return { screenUrl: value.name }
+        })
+      : game?.screens.map((value) => {
+          return { screenUrl: value.screenUrl }
+        })
+    if (screensFiles) {
       body = {
         ...body,
         ...{
-          screens: Array.from(screens).map((value) => {
-            return { screenUrl: value.name }
-          }),
+          screens: screensFiles,
         },
       }
     }
@@ -248,7 +314,7 @@ export function GameCreate({ user }: GameCreateProps) {
 
       setMsgError(null)
 
-      if (data) {
+      if (data && data.length) {
         const header = data.filter((value) => value.type === 'header')
         if (header.length) {
           body = {
@@ -297,7 +363,7 @@ export function GameCreate({ user }: GameCreateProps) {
 
     // createa game
     try {
-      const result = await api.post('/games', body, {
+      const result = await api.put(`/games/${game?.id}`, body, {
         headers: {
           Authorization: `${token}`,
         },
@@ -305,6 +371,7 @@ export function GameCreate({ user }: GameCreateProps) {
       console.log(`OK: ${result !== null}`)
       router.push(`/games/${formData.get('uurest')}`)
     } catch (e) {
+      console.log(e)
       const { response } = e as AxiosError<ObjectResponse<null>>
       return setMsgError(formatterMessageErro(response?.data?.message))
     }
@@ -320,18 +387,38 @@ export function GameCreate({ user }: GameCreateProps) {
     }
   }
 
+  if (!game) {
+    return (
+      <div className="flex h-full bg-black-500 lg:px-[12rem] xl:px-[22rem] 2xl:px-[28rem]">
+        <div className="flex w-full items-center justify-center bg-black-800 p-4 text-white">
+          Carregando...
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="flex h-full bg-black-500 lg:px-[12rem] xl:px-[22rem] 2xl:px-[28rem]">
+        <div className="flex w-full items-center justify-center bg-black-800 p-4 text-white">
+          {error ? `${error}` : `Jogo não encontrado`}
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="flex h-auto bg-black-500 lg:px-[12rem] xl:px-[22rem] 2xl:px-[28rem]">
-      <div className="flex w-full bg-black-800 p-4 text-white">
-        <form className="w-full" onSubmit={handleCreateGame}>
+      <div className="flex w-full flex-col bg-black-800 p-4 text-white">
+        <form className="w-full" onSubmit={handleUpdateGame}>
           {msgError && <Alert text={msgError} />}
           <div className="mb-4 text-2xl font-bold text-teal-600">
-            Criar novo jogo
+            Editar jogo
           </div>
           <div className="flex gap-x-4">
             <div className="flex basis-4/6 flex-col gap-y-3">
               <div>
-                <MediaPicker htmlFor="headerUrl">
+                <MediaPicker htmlFor="headerUrl" url={game.headerUrl}>
                   <Camera className="mr-3 h-5 w-5" />
                   Upload imagem de capa
                 </MediaPicker>
@@ -347,6 +434,7 @@ export function GameCreate({ user }: GameCreateProps) {
                   name="title"
                   id="title"
                   type="text"
+                  defaultValue={game.title}
                   onChange={handleUpdateUurest}
                   className="w-full rounded border-2 border-teal-600 text-black-800 ring-0 ring-offset-0 hover:ring-0 focus:ring-0 focus:ring-offset-0"
                 />
@@ -373,6 +461,7 @@ export function GameCreate({ user }: GameCreateProps) {
                   name="shortDescription"
                   id="shortDescription"
                   type="text"
+                  defaultValue={game.shortDescription}
                   className="w-full rounded border-2 border-teal-600 text-black-800 placeholder-black-600 ring-0 ring-offset-0 hover:ring-0 focus:ring-0 focus:ring-offset-0"
                 />
               </div>
@@ -385,6 +474,7 @@ export function GameCreate({ user }: GameCreateProps) {
                 <textarea
                   name="description"
                   id="description"
+                  defaultValue={game.description}
                   className="form-multiselect w-full rounded border-2 border-teal-600 text-black-800 placeholder-black-600 ring-0 ring-offset-0 hover:ring-0 focus:ring-0 focus:ring-offset-0"
                 />
               </div>
@@ -394,6 +484,7 @@ export function GameCreate({ user }: GameCreateProps) {
                   name="actor"
                   id="actor"
                   type="text"
+                  defaultValue={game.actor}
                   className="w-full rounded border-2 border-teal-600 text-black-800 placeholder-black-600 ring-0 ring-offset-0 hover:ring-0 focus:ring-0 focus:ring-offset-0"
                 />
               </div>
@@ -502,6 +593,7 @@ export function GameCreate({ user }: GameCreateProps) {
                       name="buildNumber"
                       id="buildNumber"
                       type="number"
+                      defaultValue={game.builds[0].buildNumber}
                       className="w-full rounded border-2 border-teal-600 text-black-800 placeholder-black-600 ring-0 ring-offset-0 hover:ring-0 focus:ring-0 focus:ring-offset-0"
                       placeholder="100"
                     />
@@ -512,15 +604,20 @@ export function GameCreate({ user }: GameCreateProps) {
                       name="buildDescription"
                       id="buildDescription"
                       type="text"
+                      defaultValue={game.builds[0].description}
                       className="w-full rounded border-2 border-teal-600 text-black-800 placeholder-black-600 ring-0 ring-offset-0 hover:ring-0 focus:ring-0 focus:ring-offset-0"
                     />
                   </div>
                 </div>
                 <div className="mb-2">
-                  {builds &&
-                    Array.from(builds).map((build, index) => {
-                      return <div key={index}>{build.name}</div>
-                    })}
+                  {builds
+                    ? Array.from(builds).map((build, index) => {
+                        return <div key={index}>{build.name}</div>
+                      })
+                    : game.builds &&
+                      game.builds.map((build, index) => {
+                        return <div key={index}>{build.buildUrl}</div>
+                      })}
                 </div>
                 <label
                   htmlFor="builds"
@@ -563,8 +660,8 @@ export function GameCreate({ user }: GameCreateProps) {
             </div>
             <div className="flex basis-2/6 flex-col gap-y-3">
               <div>
-                <MediaPicker htmlFor="avatarUrl">
-                  <div className="flex flex-col items-center px-3 text-center">
+                <MediaPicker htmlFor="avatarUrl" url={game.avatarUrl}>
+                  <div className="flex flex-col items-center justify-center px-3 text-center">
                     <Camera className="mr-3 h-5 w-5" />
                     Upload imagem de perfil
                   </div>
@@ -594,18 +691,30 @@ export function GameCreate({ user }: GameCreateProps) {
                     />
                   </label>
                 </div>
-                {screens &&
-                  Array.from(screens).map((screen, index) => (
-                    <div key={index}>
-                      <Image
-                        width={500}
-                        height={500}
-                        src={URL.createObjectURL(screen)}
-                        alt=""
-                        className="aspect-video h-full w-full object-cover"
-                      />
-                    </div>
-                  ))}
+                {screens
+                  ? Array.from(screens).map((screen, index) => (
+                      <div key={index}>
+                        <Image
+                          width={500}
+                          height={500}
+                          src={URL.createObjectURL(screen)}
+                          alt=""
+                          className="aspect-video h-full w-full object-cover"
+                        />
+                      </div>
+                    ))
+                  : game.screens &&
+                    game.screens.map((screen, index) => (
+                      <div key={index}>
+                        <Image
+                          width={500}
+                          height={500}
+                          src={screen.screenUrl}
+                          alt=""
+                          className="aspect-video h-full w-full object-cover"
+                        />
+                      </div>
+                    ))}
               </div>
             </div>
           </div>

@@ -8,6 +8,7 @@ import {
   createValidation,
   read,
   readAll,
+  readById,
   update,
   upload,
 } from '../controller/game'
@@ -18,6 +19,7 @@ export default (router: Router) => {
   router.post('/games/validation', validationToken, createValidation)
   router.get('/games', validationTokenWithOut, readAll)
   router.get('/games/:game', validationTokenWithOut, read)
+  router.get('/games/:game/edit', validationToken, readById)
   router.put('/games/:game/buy', validationToken, buy)
   router.put('/games/:id', validationToken, update)
 

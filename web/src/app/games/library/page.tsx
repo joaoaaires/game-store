@@ -8,5 +8,5 @@ export default function Library() {
     return redirect('/')
   }
 
-  return <GamesLibrary />
+  return <GamesLibrary user={user} />
 }
