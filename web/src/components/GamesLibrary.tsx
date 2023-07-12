@@ -61,7 +61,11 @@ export function GamesLibrary({ user }: GamesLibraryProps) {
   }
 
   return (
-    <div className="flex h-auto bg-black-400 lg:px-[6rem] xl:px-[16rem] 2xl:px-[22rem]">
+    <div
+      className={`flex ${
+        games.length > 10 ? 'h-auto' : 'h-full'
+      } bg-black-400 lg:px-[6rem] xl:px-[16rem] 2xl:px-[22rem]`}
+    >
       <div className="flex h-auto w-full flex-col bg-white p-4">
         <div className="text-2xl font-bold text-teal-600">Meus Jogos</div>
         <div className="flex flex-wrap">

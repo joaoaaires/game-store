@@ -113,6 +113,8 @@ INSERT INTO `operationalsystems` (`id`, `description`, `createAt`, `updateAt`) V
 	(3, 'Linux', '2023-06-30 13:35:41.542', '2023-06-30 13:35:41.542'),
 	(4, 'chromeOS', '2023-06-30 13:35:48.349', '2023-06-30 13:35:48.349');
 
+INSERT INTO `user` (`id`, `name`, `email`, `password`, `isDev`, `createAt`, `updateAt`) VALUES (1, 'Dev', 'dev@gmail.com', '123321', 1, '2023-07-12 21:22:29.238', '2023-07-12 21:22:29.238');
+
 -- AddForeignKey
 ALTER TABLE `GamesOnCategories` ADD CONSTRAINT `GamesOnCategories_gameId_fkey` FOREIGN KEY (`gameId`) REFERENCES `Game`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
